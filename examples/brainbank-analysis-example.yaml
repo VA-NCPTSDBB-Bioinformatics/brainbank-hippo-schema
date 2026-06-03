@@ -1,0 +1,81 @@
+# Computational-provenance example (analysis module).
+# Chain: Donor -> Sample -> Assay -> raw Dataset (FASTQ FileSet)
+#                  -> WorkflowRun (executes the nf-core/rnaseq WorkflowDefinition) -> counts Dataset.
+# Shows: File/FileSet under a Dataset; Dataset.produced_by ranging over an Assay (raw) AND a
+# WorkflowRun (derived); the definition-vs-execution split (WorkflowDefinition is_a Protocol,
+# referenced by WorkflowRun.protocol); WorkflowRun is_a Analysis is_a core.Activity.
+# Validate with:
+#   linkml-validate -s schema/brainbank.yaml -C BrainBank examples/brainbank-analysis-example.yaml
+#
+# NOTE: Analysis.started_at/ended_at (datetime) are omitted for the same reason performed_on is
+# omitted in the workflow example — linkml-validate 1.11.x mis-handles date/datetime values inside
+# polymorphic (anyOf) collections like `analyses`. The schema supports them. See DESIGN.md 8, 10.
+donors:
+  - { id: DNR-200, name: Donor 200, category: Donor, person_id: BB-0200, species: NCBITaxon:9606, sex: female }
+
+cohorts:
+  - { id: COH-PTSD, name: PTSD cohort, category: Cohort }
+
+samples:
+  - { id: SMP-200, name: Hippocampus block, category: SolidSample, sample_id: BB-0200-HIPP, donor: DNR-200, format: Block }
+
+assays:
+  - id: ASY-200
+    name: snRNA-seq of BB-0200 hippocampus
+    category: RNASeqAssay
+    assay_type: OBI:0000070
+    inputs: [ SMP-200 ]
+    platform: Illumina
+    read_length: 150
+    paired_end: true
+
+files:
+  - { id: FQ-R1, name: BB-0200 R1, category: File, uri: 's3://bb/BB-0200/raw/R1.fastq.gz', file_format: FASTQ, media_type: application/gzip, size_bytes: 4500000000, checksum: d41d8cd98f00b204e9800998ecf8427e, checksum_algorithm: md5 }
+  - { id: FQ-R2, name: BB-0200 R2, category: File, uri: 's3://bb/BB-0200/raw/R2.fastq.gz', file_format: FASTQ, media_type: application/gzip, size_bytes: 4600000000, checksum: e99a18c428cb38d5f260853678922e03, checksum_algorithm: md5 }
+  - { id: COUNTS, name: BB-0200 gene counts, category: File, uri: 's3://bb/BB-0200/rnaseq/salmon.merged.gene_counts.tsv', file_format: TSV, size_bytes: 12000000, checksum: '0000000000000000000000000000000000000000000000000000000000000000', checksum_algorithm: sha256 }
+
+file_sets:
+  - { id: FS-READS, name: BB-0200 paired reads, category: FileSet, files: [ FQ-R1, FQ-R2 ], role: reads }
+
+datasets:
+  - id: DS-RAW
+    name: BB-0200 hippocampus raw reads
+    category: RNASeqDataset
+    dataset_id: BB-0200-HIPP-RNA-RAW
+    assay_type: OBI:0000070
+    produced_by: ASY-200          # raw data: produced by the wet-lab assay
+    data_location: 's3://bb/BB-0200/raw/'
+    file_sets: [ FS-READS ]
+  - id: DS-COUNTS
+    name: BB-0200 hippocampus gene counts
+    category: RNASeqDataset
+    dataset_id: BB-0200-HIPP-RNA-COUNTS
+    produced_by: WFR-200          # derived data: produced by the workflow run
+    genome_build: GRCh38
+    quantification: raw_counts
+    gene_model: GENCODE v44
+    files: [ COUNTS ]
+
+# Reusable pipeline definition (the recipe) — shared across runs.
+workflow_definitions:
+  - id: WFD-rnaseq-3.14.0
+    name: nf-core/rnaseq
+    category: WorkflowDefinition
+    document_location: 'https://github.com/nf-core/rnaseq'   # inherited from Protocol: source URL
+    version: 3.14.0                                          # inherited from Protocol: release
+    engine: nextflow
+    container_image: 'quay.io/nf-core/rnaseq:3.14.0'
+
+analyses:
+  - id: WFR-200
+    name: nf-core/rnaseq run on BB-0200
+    category: WorkflowRun
+    protocol: WFD-rnaseq-3.14.0    # the definition this run executed
+    engine_version: Nextflow 23.10.1
+    input_datasets: [ DS-RAW ]
+    output_datasets: [ DS-COUNTS ]
+    status: completed
+    compute_environment: SLURM HPC, nf-core 'base' profile
+    parameters:
+      - { id: PARAM-aligner, name: aligner, value: star_salmon }
+      - { id: PARAM-genome, name: genome, value: GRCh38 }

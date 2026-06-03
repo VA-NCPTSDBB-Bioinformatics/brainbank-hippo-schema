@@ -77,10 +77,11 @@ classes:
         range: Location
 
   Process:
-    is_a: NamedThing
+    is_a: Activity
     description: >-
       A specimen-processing/transformation event (generalizes tissue_db:Transaction).
       Concrete brain-bank workflows subclass this in the brainbank extension layer.
+      protocol/performed_on are inherited from core.Activity.
     attributes:
       inputs:
         range: Sample
@@ -88,11 +89,6 @@ classes:
       outputs:
         range: Sample
         multivalued: true
-      protocol:
-        range: Protocol
-        recommended: true
-      performed_on:
-        range: date
 
 enums:
   SolidSampleFormat:

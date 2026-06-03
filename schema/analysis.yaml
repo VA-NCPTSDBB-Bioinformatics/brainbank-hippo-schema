@@ -1,0 +1,113 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/analysis
+name: analysis
+description: >-
+  Computational provenance, with a clear definition-vs-execution split.
+  An Analysis is a core.Activity that consumes Datasets and produces Datasets (the
+  dataset<->dataset transformation, reified through the activity node exactly as the
+  sample<->dataset relation is reified through Assay; see DESIGN.md 2.2).
+  A WorkflowDefinition is the reusable, versioned pipeline RECIPE (is_a Protocol);
+  a WorkflowRun is_a Analysis is a single EXECUTION of that definition by a workflow engine
+  (nextflow / snakemake / CWL / WDL). A run "follows" its definition via the inherited protocol
+  slot, exactly as a wet-lab Process follows an SOP. Intra-run steps (a nextflow process /
+  snakemake rule) are deferred behind the self-referential parent_analysis seam.
+prefixes:
+  linkml: https://w3id.org/linkml/
+default_prefix: analysis
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - dataset
+
+classes:
+  WorkflowDefinition:
+    is_a: Protocol
+    description: >-
+      A reusable, versioned executable pipeline DEFINITION (e.g. nf-core/rnaseq 3.14.0) — the
+      recipe, independent of any single execution. is_a Protocol: the inherited (required)
+      document_location is the pipeline source/registry URL and version is the pipeline release,
+      so a run follows this definition just as a Process follows an SOP. Shared across many runs.
+    attributes:
+      engine:
+        range: WorkflowEngine
+        required: true
+        description: Workflow engine the pipeline is written for.
+      container_image:
+        description: Default/declared container image or digest for the pipeline, if any.
+
+  Analysis:
+    is_a: Activity
+    description: >-
+      A computational process: the EXECUTION that consumes input Datasets and produces output
+      Datasets. Base for any analysis step; engine-driven runs are the WorkflowRun subclass.
+      protocol/performed_on are inherited from core.Activity.
+    attributes:
+      input_datasets:
+        range: Dataset
+        multivalued: true
+        description: Datasets consumed by this analysis.
+      output_datasets:
+        range: Dataset
+        multivalued: true
+        description: >-
+          Datasets produced by this analysis. Each such Dataset should also point back via
+          produced_by -> this Analysis.
+      parameters:
+        range: Parameter
+        multivalued: true
+        inlined_as_list: true
+        description: Parameters/settings supplied to the run.
+      started_at:
+        range: datetime
+      ended_at:
+        range: datetime
+      status:
+        range: AnalysisStatus
+      compute_environment:
+        description: Free-text description of where/how it ran (cluster, cloud, profile).
+      parent_analysis:
+        range: Analysis
+        description: >-
+          Enclosing analysis, if this is a sub-step. SEAM for future fine-grained provenance
+          (a nextflow process / snakemake rule); not built out in the prototype.
+
+  WorkflowRun:
+    is_a: Analysis
+    description: >-
+      A single execution of a WorkflowDefinition by a workflow engine (e.g. one nf-core/rnaseq
+      run). The run's identity-of-recipe lives on the linked WorkflowDefinition (via the inherited
+      protocol slot, narrowed below); this class adds only execution-specific detail.
+    attributes:
+      engine_version:
+        description: Version of the workflow engine used for THIS run (e.g. Nextflow 23.10.1).
+    slot_usage:
+      protocol:
+        range: WorkflowDefinition
+        required: true
+        description: The workflow definition (recipe) this run executed.
+
+  Parameter:
+    is_a: NamedThing
+    description: A single named parameter/setting supplied to an analysis.
+    slot_usage:
+      name:
+        description: Parameter name.
+    attributes:
+      value:
+        description: Parameter value (serialized as text in the prototype).
+
+enums:
+  AnalysisStatus:
+    permissible_values:
+      completed: {}
+      failed: {}
+      running: {}
+      queued: {}
+  WorkflowEngine:
+    permissible_values:
+      nextflow: {}
+      snakemake: {}
+      CWL: {}
+      WDL: {}
+      bash: {}
+      other: {}

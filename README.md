@@ -39,7 +39,7 @@ core ──┬── anatomy ──┐
 | `tissue` | `Sample`/`SolidSample`/`LiquidSample`, `Container`, `Location`, `Process` |
 | `dataset` | `Dataset`/`Assay` + typed subclasses per assay family (RNA-seq, genome, ATAC, genotyping, methylation, imaging) |
 | `pathology` | **provisional / future work** — generic `Measurement` + `Diagnosis` placeholder |
-| `brainbank` | `BrainBank` tree-root ingest container; lab-specific processes extend here |
+| `brainbank` | `BrainBank` tree-root ingest container + lab extension layer: the ported brain-bank workflow (`BankFreshBrain`, `DissectFrozenBrain`, `SliceTissueToSlide`, … `is_a Process`) and its specimen subclasses (`CNSSection`, `Dura`, `CSF`, … `is_a Sample`). See DESIGN.md §9 |
 
 ## Quickstart
 

@@ -63,17 +63,276 @@ classes:
         multivalued: true
         inlined_as_list: true
 
-  # --- lab extension layer: brain-bank-specific processes (ported from bank_brain_workflow) ---
-  # Re-home each Transaction subclass as `is_a: Process`, e.g.:
+  # ===========================================================================
+  # Lab extension layer (ported from tissue-db-linkml-schema/bank_brain_workflow.yaml).
   #
-  # SliceTissueToSlide:
-  #   is_a: Process
-  #   attributes:
-  #     stain:
-  #       range: StainType
-  #
-  # DissectFrozenBrain:
-  #   is_a: Process
-  #   slot_usage:
-  #     inputs:  { range: Sample, required: true }
-  #     outputs: { range: Sample, required: true }
+  # Two families port over, re-parented onto the generic tissue base (DESIGN.md
+  # 2.3): the brain-bank *material* subclasses (is_a SolidSample / LiquidSample /
+  # CNSSection) and the brain-bank *process* subclasses (is_a Process, replacing
+  # is_a Transaction). The old Transaction.sop is now Process.protocol (inherited);
+  # the old `from_samples` is now the inherited Process.inputs, narrowed via
+  # slot_usage where a process consumed a specific material. CellType, StainType,
+  # and Concentration are reused from tissue/core, not redefined here.
+  # ===========================================================================
+
+  # --- brain-bank materials: solid CNS tissue -------------------------------
+  CNSSection:
+    is_a: SolidSample
+    description: A section of central-nervous-system tissue; base for named brain regions.
+  Cerebellum:    { is_a: CNSSection }
+  Cerebrum:      { is_a: CNSSection }
+  Hemisphere:    { is_a: CNSSection }
+  Medulla:       { is_a: CNSSection }
+  OlfactoryBulb: { is_a: CNSSection }
+  PinealGland:   { is_a: CNSSection }
+  Pons:          { is_a: CNSSection }
+  SubstantiaNigra: { is_a: CNSSection }
+  ChoroidPlexus: { is_a: CNSSection }
+  Pituitary:     { is_a: CNSSection }
+  SpinalCord:    { is_a: CNSSection }
+  SpinalCordBlock: { is_a: SpinalCord }
+
+  # --- brain-bank materials: other solid tissue -----------------------------
+  Brain:
+    is_a: SolidSample
+    description: A whole brain specimen.
+  Dura:
+    is_a: SolidSample
+    description: Dura mater specimen.
+  DuraBlock: { is_a: Dura }
+  Skin:
+    is_a: SolidSample
+  Muscle:
+    is_a: SolidSample
+  MuscleBlock: { is_a: Muscle }
+  BloodVessel:
+    is_a: SolidSample
+  CSFPellet:
+    is_a: SolidSample
+    description: Cell pellet recovered from centrifuged CSF.
+  SpinalCordSlide:
+    is_a: SolidSample
+    description: A stained slide cut from spinal-cord tissue.
+  Section:
+    is_a: SolidSample
+    description: A cut tissue section with a dissection orientation.
+    attributes:
+      orientation:
+        range: DissectionOrientation
+  HorizontalSection: { is_a: Section }
+  SagittalSection:   { is_a: Section }
+  CoronalSection:    { is_a: Section }
+
+  # --- brain-bank materials: fluids / extracts ------------------------------
+  CSF:
+    is_a: LiquidSample
+    description: Cerebrospinal fluid.
+  Blood:
+    is_a: LiquidSample
+  Cells:
+    is_a: LiquidSample
+    attributes:
+      cell_type:
+        range: CellType   # reuses tissue.CellType (dynamic CL enum)
+  RNA:
+    is_a: LiquidSample
+    attributes:
+      concentration:
+        range: Concentration   # reuses core.Concentration
+  DNA:
+    is_a: LiquidSample
+    attributes:
+      concentration:
+        range: Concentration
+
+  # --- brain-bank processes: banking (intake) -------------------------------
+  BankFreshBrain:
+    is_a: Process
+    description: >-
+      Bank a fresh (unfixed) brain: fix one hemisphere and freeze the rest as named regions,
+      extracting DNA/RNA. Ported from bank_brain_workflow:BankFreshBrain.
+    attributes:
+      donor:
+        range: Donor   # was tissue_db Case
+      fixed_hemisphere:
+        range: Hemisphere
+        required: true
+      frozen_cerebellum:
+        range: Cerebellum
+        required: true
+        multivalued: true
+      frozen_olfactory_bulb:
+        range: OlfactoryBulb
+        required: true
+      frozen_pineal_gland:
+        range: PinealGland   # FIX: source erroneously ranged this on OlfactoryBulb
+        required: true
+      frozen_substantia_nigra:
+        range: SubstantiaNigra
+        required: true
+        multivalued: true
+      frozen_pons:
+        range: Pons
+        required: true
+        multivalued: true
+      frozen_medulla:
+        range: Medulla
+        required: true
+        multivalued: true
+      frozen_cerebrum:
+        range: Cerebrum   # FIX: source ranged this on undefined class `Coronal`
+        required: true
+        multivalued: true
+      dna:
+        range: DNA
+        required: true
+      rna:
+        range: RNA
+        required: true
+      choroid_plexus:
+        range: ChoroidPlexus
+        required: true
+        multivalued: true
+      pituitary:
+        range: Pituitary
+        required: true
+      other_sections:
+        range: SolidSample
+        multivalued: true
+  BankFixedBrain:
+    is_a: Process
+    attributes:
+      donor:
+        range: Donor
+      brain:
+        range: Brain
+  BankDura:
+    is_a: Process
+    attributes:
+      fixed_dura:  { range: Dura, required: true, multivalued: true }
+      frozen_dura: { range: Dura, required: true, multivalued: true }
+      media_dura:  { range: Dura, required: true, multivalued: true }
+      remainder:   { range: Dura }
+  BankCSF:
+    is_a: Process
+    attributes:
+      frozen_csf:     { range: CSF, required: true, multivalued: true }
+      pellet:         { range: CSFPellet, required: true }
+      residual_stock: { range: CSF }
+  BankBlood:
+    is_a: Process
+    attributes:
+      blood_sample_type: { range: BloodSampleType }
+      blood_sample:      { range: Blood, required: true, multivalued: true }
+      residual_stock:    { range: Blood }
+  BankSkin:
+    is_a: Process
+    attributes:
+      culture_media: { range: CultureMedia }
+      frozen_skin:   { range: Skin, required: true, multivalued: true }
+      fixed_skin:    { range: Skin, multivalued: true }
+  BankMuscle:
+    is_a: Process
+    attributes:
+      frozen_muscle: { range: Muscle, required: true, multivalued: true }
+      fixed_muscle:  { range: Muscle, required: true, multivalued: true }
+  BankVessels:
+    is_a: Process
+    attributes:
+      frozen_vessels: { range: BloodVessel, multivalued: true }
+  BankSpinalCord:
+    is_a: Process
+    attributes:
+      frozen_spinal_cord: { range: SpinalCord, multivalued: true }
+      fixed_spinal_cord:  { range: SpinalCord, multivalued: true }
+
+  # --- brain-bank processes: blocking / dissection --------------------------
+  BlockDura:
+    is_a: Process
+    attributes:
+      dura_blocks: { range: DuraBlock, required: true, multivalued: true }
+    slot_usage:
+      inputs: { range: Dura, required: true }
+  BlockMuscle:
+    is_a: Process
+    attributes:
+      muscle_blocks: { range: MuscleBlock, required: true, multivalued: true }
+    slot_usage:
+      inputs: { range: Muscle, required: true }
+  BlockSpinalCord:
+    is_a: Process
+    attributes:
+      blocked_spinal_cord: { range: SpinalCordBlock }
+    slot_usage:
+      inputs: { range: SpinalCord }
+  BlockFrozenBrain:
+    is_a: Process
+  BlockFixedBrain:
+    is_a: Process
+  BlockFixedHemisphere:
+    is_a: Process
+    attributes:
+      notes: {}
+  SectionFixedBrain:
+    is_a: Process
+    attributes:
+      brain:      { range: Brain }
+      hemisphere: { range: Hemisphere }
+  DissectFrozenBrain:
+    is_a: Process
+    attributes:
+      new_samples: { range: CNSSection, required: true, multivalued: true }
+    slot_usage:
+      inputs: { range: CNSSection, required: true }
+  DissectFixedBrain:
+    is_a: Process
+    attributes:
+      new_fixed_samples: { range: CNSSection, required: true }
+    slot_usage:
+      inputs: { range: CNSSection, required: true }
+
+  # --- brain-bank processes: culture ----------------------------------------
+  CultureTissue:
+    is_a: Process
+    abstract: true
+    attributes:
+      culture_media: { range: CultureMedia }
+  CultureDura:
+    is_a: CultureTissue
+    attributes:
+      cells: { range: Cells }
+    slot_usage:
+      inputs: { range: Dura, required: true }
+  CultureSkin:
+    is_a: CultureTissue
+    slot_usage:
+      inputs: { range: Skin, required: true }
+
+  # --- brain-bank processes: slide preparation ------------------------------
+  SliceTissueToSlide:
+    is_a: Process
+    attributes:
+      stain: { range: StainType }   # reuses tissue.StainType
+  CreateBrainSlide:
+    is_a: SliceTissueToSlide
+  CreateSpinalCordSlide:
+    is_a: SliceTissueToSlide
+    attributes:
+      spinal_cord_slides: { range: SpinalCordSlide, required: true, multivalued: true }
+    slot_usage:
+      inputs: { range: SpinalCord, required: true }
+
+enums:
+  BloodSampleType:
+    permissible_values:
+      serum: {}
+      plasma: {}
+  DissectionOrientation:
+    permissible_values:
+      Coronal: {}
+      Sagittal: {}
+      Axial/Horizontal: {}
+  CultureMedia:
+    description: Culture medium used. STUB — expand as media are catalogued.
+    permissible_values:
+      fibroblast: {}

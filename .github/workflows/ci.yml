@@ -37,4 +37,9 @@ jobs:
 
       - name: Validate example data
         run: |
-          linkml-validate -s schema/brainbank.yaml -C BrainBank examples/brainbank-example.yaml
+          rc=0
+          for ex in examples/*.yaml; do
+            echo "== validate $ex =="
+            linkml-validate -s schema/brainbank.yaml -C BrainBank "$ex" || rc=1
+          done
+          exit $rc

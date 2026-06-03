@@ -442,3 +442,47 @@ Verified green: `linkml-lint --ignore-warnings schema/*.yaml`, `gen-pydantic sch
 examples/brainbank-example.yaml` ("No issues found"). The `category` `designates_type` slot and the
 polymorphic inlined collections in the `BrainBank` tree_root validate as designed. Phases 5–6
 (workflow port, pathology build-out) are unchanged and still ahead.
+
+---
+
+## 9. Phase 5 — brain-bank workflow port (lab extension layer)
+
+`tissue-db-linkml-schema/bank_brain_workflow.yaml` has been ported into the `brainbank` extension
+layer, re-parented onto the generic tissue base (the real test of the base/extension split, §2.3).
+Two families came over:
+
+- **Materials** — the brain-bank-specific specimen subclasses become `is_a SolidSample` /
+  `LiquidSample`, with `CNSSection` (`is_a SolidSample`) as the base for the named brain regions
+  (`Cerebellum`, `Cerebrum`, `Hemisphere`, `Medulla`, `OlfactoryBulb`, `PinealGland`, `Pons`,
+  `SubstantiaNigra`, `ChoroidPlexus`, `Pituitary`, `SpinalCord`, …). Fluids/extracts (`CSF`,
+  `Blood`, `Cells`, `RNA`, `DNA`) become `is_a LiquidSample`.
+- **Processes** — every `Transaction` subclass becomes `is_a Process`. The old `Transaction.sop`
+  is now the inherited `Process.protocol`; the old `from_samples` slot is the inherited
+  `Process.inputs`, narrowed via `slot_usage` where a process consumed a specific material
+  (e.g. `BlockDura.inputs → Dura`, `DissectFrozenBrain.inputs → CNSSection`). Each process keeps its
+  specific typed output slots (e.g. `BankFreshBrain.frozen_cerebellum → Cerebellum[]`).
+
+Because this is the first time the workflow was actually compiled (linkml wouldn't install in the
+authoring session), the port surfaced and fixed several **latent bugs** the old file carried:
+
+- `BankFreshBrain.frozen_pineal_gland` was ranged on `OlfactoryBulb` (copy-paste) → corrected to
+  `PinealGland`.
+- `BankFreshBrain.frozen_cerebrum` was ranged on an **undefined class `Coronal`** → corrected to
+  `Cerebrum`.
+- `RNA`/`DNA` referenced a `Concentration` type that `tissue_db` never defined → now `core.Concentration`.
+- Duplicate `CellType` / `StainType` enums and an empty-rule (`rules: [{}]`) artifact were dropped;
+  `CellType` (dynamic CL enum) and `StainType` are reused from `tissue`, not redefined.
+- `BankSkin`'s dangling `slots: [culture_media]` reference (no such top-level slot existed) is now a
+  plain `culture_media` attribute. The leftover `tree_root: true` on `PinealGland` was removed
+  (`BrainBank` is the only tree root).
+
+`examples/brainbank-workflow-example.yaml` exercises the chain end to end —
+`BankFreshBrain` → frozen regions + DNA/RNA, then `DissectFrozenBrain` and `CreateBrainSlide` —
+and validates clean, as does `gen-pydantic` (now ~1900 lines) and lint.
+
+**Known tooling quirk (not a schema defect):** `linkml-validate` 1.11.x does not serialize `date`
+values to strings before JSON-Schema validation **when the containing slot is polymorphic** (an
+`anyOf` over subclasses, as `processes` is). A date anywhere in such a collection makes every branch
+fail with "not valid under any of the given schemas". The schema fully supports `Process.performed_on`;
+the workflow example simply leaves it unpopulated so validation/CI stay green. Revisit if/when the
+validator is fixed upstream.

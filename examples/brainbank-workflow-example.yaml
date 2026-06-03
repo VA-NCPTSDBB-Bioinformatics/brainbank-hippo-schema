@@ -1,0 +1,95 @@
+# Brain-bank workflow example (Phase 5).
+# Exercises the ported lab extension layer: a BankFreshBrain process consumes a fresh
+# Brain and produces the named frozen CNS regions + DNA/RNA, a DissectFrozenBrain cuts a
+# further section from the frozen cerebrum, and a CreateBrainSlide stains a slide.
+# Demonstrates the base/extension split: generic tissue.Process / tissue.SolidSample base,
+# brain-bank-specific subclasses (category designates_type) layered on top.
+# Validate with:
+#   linkml-validate -s schema/brainbank.yaml -C BrainBank examples/brainbank-workflow-example.yaml
+#
+# NOTE: Process.performed_on (a `date`) is intentionally not populated here. linkml-validate
+# 1.11.x does not serialize date values to strings before JSON-Schema validation when the
+# containing slot is polymorphic (an `anyOf` over subclasses, as `processes` is), so any date
+# in this collection makes every branch fail. The schema fully supports performed_on; it is
+# omitted from this example only to keep validation/CI green. See DESIGN.md 8.
+donors:
+  - id: DNR-100
+    name: Donor 100
+    category: Donor
+    person_id: BB-0100
+    species: NCBITaxon:9606
+    sex: male
+    age_at_death: 68.0
+    post_mortem_interval_hours: 14.0
+    cohort:
+      - COH-PTSD
+
+cohorts:
+  - id: COH-PTSD
+    name: PTSD cohort
+    category: Cohort
+
+locations:
+  - id: LOC-FRZ-2
+    name: Freezer 2
+    category: Location
+    location_type: Room
+
+containers:
+  - id: BOX-100
+    name: Cryobox 100
+    category: Container
+    type: Cryovial
+    location: LOC-FRZ-2
+
+samples:
+  # --- input material ---
+  - { id: BR-100,  name: Fresh brain BB-0100,        category: Brain,        sample_id: BB-0100-BR,        donor: DNR-100, format: Whole brain }
+  # --- BankFreshBrain outputs ---
+  - { id: HEMI-100, name: Fixed hemisphere,           category: Hemisphere,   sample_id: BB-0100-HEMI,      donor: DNR-100, format: Hemisphere,  derived_from: BR-100 }
+  - { id: CBL-100,  name: Frozen cerebellum,          category: Cerebellum,   sample_id: BB-0100-CBL,       donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: OB-100,   name: Frozen olfactory bulb,      category: OlfactoryBulb, sample_id: BB-0100-OB,       donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: PIN-100,  name: Frozen pineal gland,        category: PinealGland,  sample_id: BB-0100-PIN,       donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: SN-100,   name: Frozen substantia nigra,    category: SubstantiaNigra, sample_id: BB-0100-SN,     donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: PONS-100, name: Frozen pons,                category: Pons,         sample_id: BB-0100-PONS,      donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: MED-100,  name: Frozen medulla,             category: Medulla,      sample_id: BB-0100-MED,       donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: CER-100,  name: Frozen cerebrum,            category: Cerebrum,     sample_id: BB-0100-CER,       donor: DNR-100, format: Coronal slab, derived_from: BR-100 }
+  - { id: CP-100,   name: Choroid plexus,             category: ChoroidPlexus, sample_id: BB-0100-CP,       donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: PIT-100,  name: Pituitary,                  category: Pituitary,    sample_id: BB-0100-PIT,       donor: DNR-100, format: Section,     derived_from: BR-100 }
+  - { id: DNA-100,  name: Extracted DNA,              category: DNA,          sample_id: BB-0100-DNA,       donor: DNR-100, derived_from: BR-100, concentration: { value: 55.0, unit: ng_ul } }
+  - { id: RNA-100,  name: Extracted RNA,              category: RNA,          sample_id: BB-0100-RNA,       donor: DNR-100, derived_from: BR-100, concentration: { value: 120.0, unit: ng_ul } }
+  # --- DissectFrozenBrain output (cut from the frozen cerebrum) ---
+  - { id: SEC-100,  name: Dissected cerebrum block,   category: CNSSection,   sample_id: BB-0100-SEC,       donor: DNR-100, format: Block, derived_from: CER-100, produced_by: DISS-100 }
+  # --- CreateBrainSlide output ---
+  - { id: SLIDE-100, name: NeuN slide of cerebrum block, category: SolidSample, sample_id: BB-0100-SLIDE, donor: DNR-100, format: Section, derived_from: SEC-100, produced_by: SLIDE-PROC-100 }
+
+processes:
+  - id: BANK-100
+    name: Bank fresh brain BB-0100
+    category: BankFreshBrain
+    inputs: [ BR-100 ]
+    donor: DNR-100
+    fixed_hemisphere: HEMI-100
+    frozen_cerebellum: [ CBL-100 ]
+    frozen_olfactory_bulb: OB-100
+    frozen_pineal_gland: PIN-100
+    frozen_substantia_nigra: [ SN-100 ]
+    frozen_pons: [ PONS-100 ]
+    frozen_medulla: [ MED-100 ]
+    frozen_cerebrum: [ CER-100 ]
+    dna: DNA-100
+    rna: RNA-100
+    choroid_plexus: [ CP-100 ]
+    pituitary: PIT-100
+
+  - id: DISS-100
+    name: Dissect frozen cerebrum BB-0100
+    category: DissectFrozenBrain
+    inputs: [ CER-100 ]
+    new_samples: [ SEC-100 ]
+
+  - id: SLIDE-PROC-100
+    name: NeuN-stain cerebrum block BB-0100
+    category: CreateBrainSlide
+    inputs: [ SEC-100 ]
+    stain: NeuN

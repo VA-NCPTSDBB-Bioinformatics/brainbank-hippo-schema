@@ -11,9 +11,9 @@ all: lint validate pydantic
 lint:
 	@for f in $(MODULES); do echo "== lint $$f =="; linkml-lint --ignore-warnings $$f || exit 1; done
 
-## Validate example data against the tree-root container
+## Validate every example against the tree-root container
 validate:
-	linkml-validate -s $(ROOT) -C BrainBank examples/brainbank-example.yaml
+	@for ex in examples/*.yaml; do echo "== validate $$ex =="; linkml-validate -s $(ROOT) -C BrainBank $$ex || exit 1; done
 
 ## Generate a Pydantic SDK from the root (smoke test that the merged schema compiles)
 pydantic: $(BUILD)

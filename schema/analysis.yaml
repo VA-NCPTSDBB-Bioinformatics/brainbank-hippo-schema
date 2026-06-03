@@ -1,12 +1,15 @@
 id: https://w3id.org/VA-NCPTSDBB/brainbank/analysis
 name: analysis
 description: >-
-  Computational provenance. An Analysis is a core.Activity that consumes Datasets and produces
-  Datasets (the dataset<->dataset transformation, reified through the activity node exactly as the
-  sample<->dataset relation is reified through Assay; see DESIGN.md 2.2). Workflow is_a Analysis:
-  an engine-driven run (nextflow / snakemake / CWL / WDL) carrying its pipeline identity. Intra-run
-  steps (a nextflow process / snakemake rule) are deferred behind the self-referential
-  parent_analysis seam.
+  Computational provenance, with a clear definition-vs-execution split.
+  An Analysis is a core.Activity that consumes Datasets and produces Datasets (the
+  dataset<->dataset transformation, reified through the activity node exactly as the
+  sample<->dataset relation is reified through Assay; see DESIGN.md 2.2).
+  A WorkflowDefinition is the reusable, versioned pipeline RECIPE (is_a Protocol);
+  a WorkflowRun is_a Analysis is a single EXECUTION of that definition by a workflow engine
+  (nextflow / snakemake / CWL / WDL). A run "follows" its definition via the inherited protocol
+  slot, exactly as a wet-lab Process follows an SOP. Intra-run steps (a nextflow process /
+  snakemake rule) are deferred behind the self-referential parent_analysis seam.
 prefixes:
   linkml: https://w3id.org/linkml/
 default_prefix: analysis
@@ -17,12 +20,27 @@ imports:
   - dataset
 
 classes:
+  WorkflowDefinition:
+    is_a: Protocol
+    description: >-
+      A reusable, versioned executable pipeline DEFINITION (e.g. nf-core/rnaseq 3.14.0) — the
+      recipe, independent of any single execution. is_a Protocol: the inherited (required)
+      document_location is the pipeline source/registry URL and version is the pipeline release,
+      so a run follows this definition just as a Process follows an SOP. Shared across many runs.
+    attributes:
+      engine:
+        range: WorkflowEngine
+        required: true
+        description: Workflow engine the pipeline is written for.
+      container_image:
+        description: Default/declared container image or digest for the pipeline, if any.
+
   Analysis:
     is_a: Activity
     description: >-
-      A computational process: consumes input Datasets and produces output Datasets. Base for any
-      analysis step; engine-driven pipelines are the Workflow subclass. protocol/performed_on are
-      inherited from core.Activity.
+      A computational process: the EXECUTION that consumes input Datasets and produces output
+      Datasets. Base for any analysis step; engine-driven runs are the WorkflowRun subclass.
+      protocol/performed_on are inherited from core.Activity.
     attributes:
       input_datasets:
         range: Dataset
@@ -53,26 +71,20 @@ classes:
           Enclosing analysis, if this is a sub-step. SEAM for future fine-grained provenance
           (a nextflow process / snakemake rule); not built out in the prototype.
 
-  Workflow:
+  WorkflowRun:
     is_a: Analysis
     description: >-
-      An engine-driven workflow run (e.g. nf-core/rnaseq, a Snakemake pipeline). Carries the
-      pipeline identity in addition to the inherited Analysis run fields. Note: because each run is
-      its own Workflow instance, pipeline identity (repository_url / pipeline_version) repeats per
-      run rather than living in one reusable definition (a deliberate subclass-over-slot choice).
+      A single execution of a WorkflowDefinition by a workflow engine (e.g. one nf-core/rnaseq
+      run). The run's identity-of-recipe lives on the linked WorkflowDefinition (via the inherited
+      protocol slot, narrowed below); this class adds only execution-specific detail.
     attributes:
-      engine:
-        range: WorkflowEngine
-        required: true
-      repository_url:
-        range: uriorcurie
-        description: Where the pipeline source lives (e.g. the nf-core/Snakemake-workflows repo).
-      pipeline_version:
-        description: Pipeline release tag or commit (e.g. nf-core/rnaseq 3.14.0).
       engine_version:
-        description: Version of the workflow engine itself (e.g. Nextflow 23.10.1).
-      container_image:
-        description: Container image/digest the run executed in, if any.
+        description: Version of the workflow engine used for THIS run (e.g. Nextflow 23.10.1).
+    slot_usage:
+      protocol:
+        range: WorkflowDefinition
+        required: true
+        description: The workflow definition (recipe) this run executed.
 
   Parameter:
     is_a: NamedThing

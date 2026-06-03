@@ -515,26 +515,38 @@ index, …). `Dataset` gains `files` / `file_sets`; `data_location` survives as 
 convenience pointer to the dataset root; the old per-dataset `file_format` slot is dropped (it now
 lives per `File`). New enums: `FileFormat`, `FileRole`, `ChecksumAlgorithm`.
 
-**Computational layer (new `analysis` module, imports `core` + `dataset`).**
-- **`Analysis is_a Activity`** — a computational run: `input_datasets`, `output_datasets`,
+**Computational layer (new `analysis` module, imports `core` + `dataset`).** A workflow has two
+distinct notions that are modeled as two classes — the reusable *definition* and the individual
+*execution*:
+
+- **`WorkflowDefinition is_a Protocol`** — the reusable, versioned pipeline *recipe* (e.g.
+  nf-core/rnaseq 3.14.0), independent of any run. It leans on `Protocol`'s required slots:
+  `document_location` = pipeline source/registry URL, `version` = pipeline release; it adds
+  `engine` (nextflow/snakemake/CWL/WDL/…) and `container_image`. One per pipeline version, shared
+  across many runs.
+- **`Analysis is_a Activity`** — a computational *execution*: `input_datasets`, `output_datasets`,
   `parameters` (a small `Parameter {name, value}` class), `started_at`/`ended_at` (datetime),
   `status`, `compute_environment`, and a self-referential `parent_analysis` **seam** for future
   intra-run (nextflow process / snakemake rule) provenance — deferred for now.
-- **`Workflow is_a Analysis`** — an engine-driven run (`engine` ∈ nextflow/snakemake/CWL/WDL/…,
-  `repository_url`, `pipeline_version`, `engine_version`, `container_image`). Tracking a
-  nextflow/snakemake pipeline at the right level = one `Workflow` node per run, whose `protocol`
-  (inherited) and identity fields say what ran. **Decision:** `Workflow` is a *subclass* of
-  `Analysis` rather than a separate `Protocol`-derived definition referenced by slot. Trade-off:
-  pipeline identity (repo/version) repeats per run instead of living in one reusable definition —
-  the deliberate consequence of subclass-over-slot. A reusable `WorkflowDefinition is_a Protocol`
-  can be added later without disturbing consumers if that repetition becomes a problem.
+- **`WorkflowRun is_a Analysis`** — a single engine-driven execution of a `WorkflowDefinition`. It
+  links to its definition via the **inherited `protocol` slot, narrowed to `WorkflowDefinition`**
+  — so a run *follows* its definition exactly as a wet-lab `Process` follows an SOP. It adds only
+  `engine_version` (the engine version for *this* run); all recipe identity lives on the definition.
 
-`brainbank` tree_root gains `files`, `file_sets`, and `analyses` (the latter holds `Workflow` runs
-too, since `Workflow is_a Analysis`). `examples/brainbank-analysis-example.yaml` runs the chain end
-to end: assay → raw RNA-seq `Dataset` (FASTQ `FileSet`) → nf-core/rnaseq `Workflow` → derived
-gene-counts `Dataset`.
+**Decision (revised):** definition and execution are split into two classes rather than collapsed
+into one. This keeps pipeline identity (repo/version/engine) in a single reusable place instead of
+repeating it on every run, and makes the wet-lab/dry-lab symmetry exact:
+`Process → Protocol (SOP)` ⟺ `WorkflowRun → WorkflowDefinition (executable Protocol)`. The run is
+still a *subclass* of `Analysis`; it's the recipe that moved out into its own `Protocol`-derived
+class.
 
-**Prior-art alignment (future, hippo seam §7):** `File`/`Workflow`/`Analysis` are shaped to map
+`brainbank` tree_root gains `files`, `file_sets`, `workflow_definitions` (the recipes, since they
+are `Protocol`s not `Activity`s), and `analyses` (holds `WorkflowRun` executions too, since
+`WorkflowRun is_a Analysis`). `examples/brainbank-analysis-example.yaml` runs the chain end to end:
+assay → raw RNA-seq `Dataset` (FASTQ `FileSet`) → a `WorkflowRun` executing the nf-core/rnaseq
+`WorkflowDefinition` → derived gene-counts `Dataset`.
+
+**Prior-art alignment (future, hippo seam §7):** `File`/`WorkflowDefinition`/`Analysis` are shaped to map
 onto GA4GH DRS (files), W3C PROV-O (Entity/Activity/Agent), and the Workflow-Run RO-Crate profile —
 so `exact_mappings`/`class_uri` annotations can later make instances exportable as RO-Crate.
 

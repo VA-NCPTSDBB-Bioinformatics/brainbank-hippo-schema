@@ -67,11 +67,16 @@ classes:
         range: FileSet
         multivalued: true
         inlined_as_list: true
+      workflow_definitions:
+        range: WorkflowDefinition
+        multivalued: true
+        inlined_as_list: true
+        description: Reusable pipeline definitions (recipes) referenced by workflow runs.
       analyses:
         range: Analysis
         multivalued: true
         inlined_as_list: true
-        description: Computational analyses, including engine-driven Workflow runs.
+        description: Computational analyses, including engine-driven WorkflowRun executions.
       assessments:
         range: Assessment
         multivalued: true

@@ -1,8 +1,9 @@
 # Computational-provenance example (analysis module).
 # Chain: Donor -> Sample -> Assay -> raw Dataset (FASTQ FileSet)
-#                                       -> Workflow (nf-core/rnaseq) -> derived counts Dataset.
+#                  -> WorkflowRun (executes the nf-core/rnaseq WorkflowDefinition) -> counts Dataset.
 # Shows: File/FileSet under a Dataset; Dataset.produced_by ranging over an Assay (raw) AND a
-# Workflow (derived); Workflow is_a Analysis is_a core.Activity.
+# WorkflowRun (derived); the definition-vs-execution split (WorkflowDefinition is_a Protocol,
+# referenced by WorkflowRun.protocol); WorkflowRun is_a Analysis is_a core.Activity.
 # Validate with:
 #   linkml-validate -s schema/brainbank.yaml -C BrainBank examples/brainbank-analysis-example.yaml
 #
@@ -49,21 +50,28 @@ datasets:
     name: BB-0200 hippocampus gene counts
     category: RNASeqDataset
     dataset_id: BB-0200-HIPP-RNA-COUNTS
-    produced_by: WF-200           # derived data: produced by the workflow run
+    produced_by: WFR-200          # derived data: produced by the workflow run
     genome_build: GRCh38
     quantification: raw_counts
     gene_model: GENCODE v44
     files: [ COUNTS ]
 
-analyses:
-  - id: WF-200
-    name: nf-core/rnaseq on BB-0200
-    category: Workflow
+# Reusable pipeline definition (the recipe) — shared across runs.
+workflow_definitions:
+  - id: WFD-rnaseq-3.14.0
+    name: nf-core/rnaseq
+    category: WorkflowDefinition
+    document_location: 'https://github.com/nf-core/rnaseq'   # inherited from Protocol: source URL
+    version: 3.14.0                                          # inherited from Protocol: release
     engine: nextflow
-    repository_url: 'https://github.com/nf-core/rnaseq'
-    pipeline_version: 3.14.0
-    engine_version: Nextflow 23.10.1
     container_image: 'quay.io/nf-core/rnaseq:3.14.0'
+
+analyses:
+  - id: WFR-200
+    name: nf-core/rnaseq run on BB-0200
+    category: WorkflowRun
+    protocol: WFD-rnaseq-3.14.0    # the definition this run executed
+    engine_version: Nextflow 23.10.1
     input_datasets: [ DS-RAW ]
     output_datasets: [ DS-COUNTS ]
     status: completed

@@ -38,7 +38,7 @@ core ──┬── anatomy ──┐
 | `person` | `Person` / `Donor`, `Cohort`, `Species` |
 | `tissue` | `Sample`/`SolidSample`/`LiquidSample`, `Container`, `Location`, `Process` (`is_a Activity`) |
 | `dataset` | `Dataset`/`Assay` (`is_a Activity`) + typed subclasses per assay family; `File`/`FileSet` physical layer |
-| `analysis` | computational provenance — `Analysis` (`is_a Activity`) and `Workflow` (`is_a Analysis`: nextflow/snakemake/… runs). See DESIGN.md §10 |
+| `analysis` | computational provenance — `WorkflowDefinition` (`is_a Protocol`: the pipeline recipe), `Analysis` (`is_a Activity`: an execution), `WorkflowRun` (`is_a Analysis`: an engine-driven run of a definition). See DESIGN.md §10 |
 | `pathology` | **provisional / future work** — generic `Measurement` + `Diagnosis` placeholder |
 | `brainbank` | `BrainBank` tree-root ingest container + lab extension layer: the ported brain-bank workflow (`BankFreshBrain`, `DissectFrozenBrain`, `SliceTissueToSlide`, … `is_a Process`) and its specimen subclasses (`CNSSection`, `Dura`, `CSF`, … `is_a Sample`). See DESIGN.md §9 |
 

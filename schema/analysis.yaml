@@ -59,10 +59,13 @@ classes:
         description: Parameters/settings supplied to the run.
       started_at:
         range: datetime
+        description: Date-time when this analysis run started execution.
       ended_at:
         range: datetime
+        description: Date-time when this analysis run finished (successfully or with failure).
       status:
         range: AnalysisStatus
+        description: Execution status of this analysis run.
       compute_environment:
         description: Free-text description of where/how it ran (cluster, cloud, profile).
       parent_analysis:
@@ -88,26 +91,38 @@ classes:
 
   Parameter:
     is_a: NamedThing
-    description: A single named parameter/setting supplied to an analysis.
+    description: A single named parameter/setting supplied to an analysis run.
     slot_usage:
       name:
-        description: Parameter name.
+        description: Parameter name (key).
     attributes:
       value:
-        description: Parameter value (serialized as text in the prototype).
+        description: Parameter value, serialized as text in the prototype.
 
 enums:
   AnalysisStatus:
+    description: Execution status of a computational analysis run.
     permissible_values:
-      completed: {}
-      failed: {}
-      running: {}
-      queued: {}
+      completed:
+        description: The analysis finished successfully and all outputs are available.
+      failed:
+        description: The analysis terminated with an error; outputs may be incomplete.
+      running:
+        description: The analysis is currently executing.
+      queued:
+        description: The analysis has been submitted but has not yet started executing.
   WorkflowEngine:
+    description: Workflow execution engines supported for WorkflowDefinition/WorkflowRun.
     permissible_values:
-      nextflow: {}
-      snakemake: {}
-      CWL: {}
-      WDL: {}
-      bash: {}
-      other: {}
+      nextflow:
+        description: Nextflow dataflow-based workflow engine (nextflow.io).
+      snakemake:
+        description: Snakemake Python-based workflow management system.
+      CWL:
+        description: Common Workflow Language; portable, standards-based workflow description.
+      WDL:
+        description: Workflow Description Language; used by Cromwell and Terra.
+      bash:
+        description: Plain Bash shell script; used for simple or legacy pipelines.
+      other:
+        description: A workflow engine not enumerated above.

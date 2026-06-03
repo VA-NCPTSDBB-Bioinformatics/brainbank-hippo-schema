@@ -23,17 +23,18 @@ classes:
     attributes:
       ontology_term:
         range: AnatomicalSite
-        description: The bound Uberon term.
+        description: The bound Uberon term for this anatomical structure.
       fma_xref:
         range: uriorcurie
         multivalued: true
         description: FMA cross-reference(s), used when Uberon is not specific enough.
       part_of:
         range: AnatomicalStructure
+        description: The parent anatomical structure this structure is a part of (mereological relation).
 
 enums:
   AnatomicalSite:
-    description: Anatomical structures from Uberon.
+    description: Anatomical structures drawn from the Uberon multi-species anatomy ontology.
     reachable_from:
       source_ontology: obo:uberon
       source_nodes:

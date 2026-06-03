@@ -8,6 +8,7 @@ description: >-
 prefixes:
   linkml: https://w3id.org/linkml/
   obi: http://purl.obolibrary.org/obo/OBI_
+  EDAM: http://edamontology.org/
 default_prefix: dataset
 default_range: string
 imports:
@@ -27,8 +28,10 @@ classes:
     attributes:
       dataset_id:
         required: true
+        description: Business identifier for this dataset (human-facing ID or accession).
       assay_type:
         range: AssayType
+        description: OBI assay type that generated this dataset.
       data_location:
         range: uriorcurie
         description: >-
@@ -52,76 +55,92 @@ classes:
   SequenceDataset:
     abstract: true
     is_a: Dataset
-    description: Common fields for sequencing-derived datasets.
+    description: Abstract base for datasets derived from high-throughput sequencing assays.
     attributes:
       genome_build:
         range: GenomeBuild
+        description: Reference genome assembly used for alignment or variant calling.
       n_reads:
         range: integer
+        description: Total number of sequencing reads (or read pairs) in this dataset.
 
   RNASeqDataset:
     is_a: SequenceDataset
-    description: Transcriptomics (bulk or single-nucleus) expression output.
+    description: Transcriptomics (bulk or single-nucleus RNA-seq) expression output dataset.
     attributes:
       quantification:
         range: RNAQuantification
+        description: Quantification unit reported in the expression matrix (e.g. raw counts, TPM).
       gene_model:
-        description: Annotation/gene model used (e.g. GENCODE release).
+        description: Annotation/gene model used for quantification (e.g. GENCODE release, Ensembl version).
 
   GenomeVariantDataset:
     is_a: SequenceDataset
-    description: WGS / WES variant output.
+    description: Whole-genome or whole-exome sequencing variant call output dataset.
     attributes:
       sequencing_strategy:
         range: SequencingStrategy
-      variant_caller: {}
+        description: Sequencing strategy used to generate this variant dataset (WGS, WES, or targeted).
+      variant_caller:
+        description: Name and version of the variant-calling software used (e.g. GATK HaplotypeCaller 4.4).
       n_variants:
         range: integer
+        description: Total number of variant calls in this dataset.
 
   ATACSeqDataset:
     is_a: SequenceDataset
-    description: Chromatin-accessibility (ATAC-seq) output.
+    description: Chromatin-accessibility (ATAC-seq) peak/signal output dataset.
     attributes:
-      peak_caller: {}
+      peak_caller:
+        description: Name and version of the peak-calling software used (e.g. MACS3 3.0).
       n_peaks:
         range: integer
+        description: Number of chromatin-accessibility peaks called in this dataset.
 
   ArrayDataset:
     abstract: true
     is_a: Dataset
-    description: Common fields for microarray-derived datasets.
+    description: Abstract base for datasets derived from microarray assays.
     attributes:
       array_platform:
         range: ArrayPlatform
+        description: Microarray platform used to generate this dataset.
 
   GenotypingDataset:
     is_a: ArrayDataset
-    description: SNP-array genotyping output.
+    description: SNP-array genotyping output dataset.
     attributes:
       genome_build:
         range: GenomeBuild
+        description: Reference genome build used for variant annotation.
       n_variants:
         range: integer
+        description: Number of genotyped variant sites in this dataset.
 
   MethylationDataset:
     is_a: ArrayDataset
-    description: Array-based DNA methylation output.
+    description: Array-based DNA methylation (e.g. Illumina EPIC) output dataset.
     attributes:
       n_probes:
         range: integer
+        description: Number of CpG probes passing QC in this dataset.
 
   ImageDataset:
     is_a: Dataset
-    description: Histology / IHC image (e.g. whole-slide image).
+    description: Histology or immunohistochemistry (IHC) image dataset (e.g. whole-slide image).
     attributes:
       image_format:
         range: ImageFormat
+        description: File format of the image (e.g. SVS, OME-TIFF).
       stain:
         range: StainType
+        description: IHC stain applied to the tissue before imaging.
       magnification:
         range: float
+        description: Objective magnification used during scanning (e.g. 20.0 for 20×).
       pixel_size_um:
         range: float
+        description: Physical size of one pixel in micrometers at the stated magnification.
 
   # ---------------- Files (the physical layer under a Dataset) ----------------
   File:
@@ -139,10 +158,12 @@ classes:
         description: IANA media (MIME) type, e.g. application/gzip.
       size_bytes:
         range: integer
+        description: Size of the file in bytes.
       checksum:
-        description: Checksum value for integrity/identity.
+        description: Checksum value for file integrity and identity verification.
       checksum_algorithm:
         range: ChecksumAlgorithm
+        description: Algorithm used to compute the checksum (e.g. md5, sha256).
 
   FileSet:
     is_a: NamedThing
@@ -154,6 +175,7 @@ classes:
         range: File
         multivalued: true
         required: true
+        description: The files that make up this set.
       role:
         range: FileRole
         description: What this set of files represents within the dataset.
@@ -168,6 +190,7 @@ classes:
     attributes:
       assay_type:
         range: AssayType
+        description: OBI-controlled type of assay performed.
       inputs:
         range: Sample
         multivalued: true
@@ -176,121 +199,213 @@ classes:
   SequencingAssay:
     abstract: true
     is_a: Assay
+    description: Abstract base for next-generation sequencing assays.
     attributes:
       platform:
         range: SequencingPlatform
+        description: Sequencing instrument platform used (e.g. Illumina, PacBio).
       read_length:
         range: integer
+        description: Read length in base pairs (for paired-end reads, the per-read length).
       paired_end:
         range: boolean
+        description: Whether this assay used paired-end sequencing (true) or single-end (false).
   RNASeqAssay:
     is_a: SequencingAssay
+    description: An RNA sequencing assay (bulk or single-nucleus RNA-seq).
   GenomeSequencingAssay:
     is_a: SequencingAssay
+    description: A whole-genome or whole-exome DNA sequencing assay.
     attributes:
       sequencing_strategy:
         range: SequencingStrategy
+        description: Sequencing strategy used (WGS, WES, or targeted panel).
   ATACSeqAssay:
     is_a: SequencingAssay
+    description: An ATAC-seq chromatin-accessibility assay.
 
   ArrayAssay:
     abstract: true
     is_a: Assay
+    description: Abstract base for microarray-based assays.
     attributes:
       array_platform:
         range: ArrayPlatform
+        description: Microarray platform used in this assay.
   GenotypingAssay:
     is_a: ArrayAssay
+    description: A SNP-array genotyping assay.
   MethylationArrayAssay:
     is_a: ArrayAssay
+    description: An array-based DNA methylation assay (e.g. Illumina EPIC or 450K).
 
   ImagingAssay:
     is_a: Assay
+    description: A histology or IHC imaging assay that digitizes stained tissue sections.
     attributes:
       stain:
         range: StainType
+        description: IHC stain applied to the section.
       magnification:
         range: float
-      scanner: {}
+        description: Objective magnification used during scanning.
+      scanner:
+        description: Scanner model used for slide digitization (e.g. Aperio GT450).
 
 enums:
   AssayType:
+    description: >-
+      Assay types drawn from the Ontology for Biomedical Investigations (OBI), anchored at
+      OBI:0000070 (assay). Used to classify both Assay process nodes and Dataset outputs.
     reachable_from:
       source_ontology: obo:obi
       source_nodes:
         - OBI:0000070      # assay
   FileFormat:
-    description: Common bioinformatics file formats. First cut — extend as needed.
+    description: Common bioinformatics file formats. First-cut enumeration — extend as needed.
     permissible_values:
-      FASTQ: {}
-      BAM: {}
-      CRAM: {}
-      SAM: {}
-      VCF: {}
-      BCF: {}
-      BED: {}
-      GFF: {}
-      GTF: {}
-      TSV: {}
-      CSV: {}
-      H5AD: {}
-      MTX: {}
-      Parquet: {}
-      Other: {}
+      FASTQ:
+        description: Raw sequencing reads with per-base quality scores (FASTQ format).
+        meaning: EDAM:format_1930
+      BAM:
+        description: Binary Alignment Map; compressed binary form of SAM.
+        meaning: EDAM:format_2572
+      CRAM:
+        description: Reference-compressed sequence alignment format; more compact than BAM.
+        meaning: EDAM:format_3462
+      SAM:
+        description: Sequence Alignment/Map text format.
+        meaning: EDAM:format_2573
+      VCF:
+        description: Variant Call Format; stores SNPs, indels, and structural variants.
+        meaning: EDAM:format_3016
+      BCF:
+        description: Binary Variant Call Format; compressed binary equivalent of VCF.
+        meaning: EDAM:format_3020
+      BED:
+        description: Browser Extensible Data; tab-delimited genomic interval format.
+        meaning: EDAM:format_3003
+      GFF:
+        description: General Feature Format; generic genomic annotation format.
+        meaning: EDAM:format_2305
+      GTF:
+        description: Gene Transfer Format (GFF version 2 extended); gene annotation format.
+        meaning: EDAM:format_2306
+      TSV:
+        description: Tab-separated values text file.
+        meaning: EDAM:format_3475
+      CSV:
+        description: Comma-separated values text file.
+        meaning: EDAM:format_3752
+      H5AD:
+        description: AnnData HDF5 format; used by scanpy/AnnData for single-cell expression data.
+      MTX:
+        description: Matrix Market sparse matrix format; used for 10x Genomics count matrices.
+      Parquet:
+        description: Apache Parquet columnar storage format; used for large tabular genomics data.
+      Other:
+        description: A file format not enumerated above.
   FileRole:
-    description: The role a file/file-set plays within a dataset.
+    description: The role a file or file-set plays within a dataset.
     permissible_values:
-      reads: {}
-      alignment: {}
-      index: {}
-      variants: {}
-      counts: {}
-      qc: {}
-      log: {}
-      report: {}
-      reference: {}
-      other: {}
+      reads:
+        description: Raw or processed sequencing reads (e.g. FASTQ files).
+      alignment:
+        description: Aligned reads (e.g. BAM or CRAM files).
+      index:
+        description: An index file accompanying another file (e.g. .bai for a BAM).
+      variants:
+        description: Variant calls (e.g. VCF/BCF files).
+      counts:
+        description: Feature count or expression matrix (e.g. gene counts TSV, H5AD).
+      qc:
+        description: Quality-control metrics or reports.
+      log:
+        description: Pipeline run log file.
+      report:
+        description: Summary report (e.g. MultiQC HTML report).
+      reference:
+        description: Reference genome, annotation, or index file.
+      other:
+        description: A file role not enumerated above.
   ChecksumAlgorithm:
+    description: Cryptographic or hash algorithms used for file checksums.
     permissible_values:
-      md5: {}
-      sha1: {}
-      sha256: {}
+      md5:
+        description: MD5 message-digest algorithm (128-bit hash).
+      sha1:
+        description: SHA-1 secure hash algorithm (160-bit hash).
+      sha256:
+        description: SHA-256 secure hash algorithm (256-bit hash); preferred for new data.
   SequencingPlatform:
+    description: Next-generation sequencing instrument platforms.
     permissible_values:
-      Illumina: {}
-      PacBio: {}
-      Oxford Nanopore: {}
-      BGI: {}
-      Other: {}
+      Illumina:
+        description: Illumina short-read sequencing platforms (e.g. NovaSeq, HiSeq).
+      PacBio:
+        description: Pacific Biosciences long-read (SMRT) sequencing platforms.
+      Oxford Nanopore:
+        description: Oxford Nanopore Technologies long-read direct sequencing platforms.
+      BGI:
+        description: BGI/MGI sequencing platforms (e.g. MGISEQ-2000).
+      Other:
+        description: A sequencing platform not enumerated above.
   ArrayPlatform:
+    description: Microarray platforms used for genotyping and methylation assays.
     permissible_values:
-      Illumina Infinium EPIC: {}
-      Illumina 450K: {}
-      Affymetrix SNP 6.0: {}
-      Other: {}
+      Illumina Infinium EPIC:
+        description: Illumina Infinium MethylationEPIC array (~850 K CpG sites).
+      Illumina 450K:
+        description: Illumina HumanMethylation450 BeadChip array (~450 K CpG sites).
+      Affymetrix SNP 6.0:
+        description: Affymetrix Genome-Wide Human SNP Array 6.0 (~1.8 M SNP and CNV markers).
+      Other:
+        description: A microarray platform not enumerated above.
   GenomeBuild:
+    description: Reference genome assembly versions used for alignment and variant annotation.
     permissible_values:
-      GRCh38: {}
-      GRCh37: {}
-      T2T-CHM13: {}
-      Other: {}
+      GRCh38:
+        description: GRCh38/hg38 — the current human reference genome assembly (Genome Reference Consortium, 2013).
+      GRCh37:
+        description: GRCh37/hg19 — the previous major human reference genome assembly.
+      T2T-CHM13:
+        description: Telomere-to-telomere CHM13 assembly; first gapless human reference genome.
+      Other:
+        description: A genome assembly not enumerated above.
   RNAQuantification:
+    description: Units or methods used to report RNA expression levels.
     permissible_values:
-      raw_counts: {}
-      TPM: {}
-      FPKM: {}
-      CPM: {}
+      raw_counts:
+        description: Unnormalized integer read counts per feature (gene or transcript).
+      TPM:
+        description: Transcripts Per Kilobase Million; length- and depth-normalized expression unit.
+      FPKM:
+        description: Fragments Per Kilobase of transcript per Million mapped reads; deprecated in favor of TPM.
+      CPM:
+        description: Counts Per Million mapped reads; depth-normalized but not length-normalized.
   SequencingStrategy:
+    description: DNA sequencing strategies that determine genomic coverage.
     permissible_values:
-      WGS: {}
-      WES: {}
-      targeted: {}
+      WGS:
+        description: Whole-Genome Sequencing; untargeted sequencing of the entire genome.
+      WES:
+        description: Whole-Exome Sequencing; captures and sequences all protein-coding exons.
+      targeted:
+        description: Targeted sequencing of a specific gene panel or locus set.
   ImageFormat:
+    description: Digital image file formats used for whole-slide and histology images.
     permissible_values:
-      SVS: {}
-      OME-TIFF: {}
-      TIFF: {}
-      NDPI: {}
-      DICOM: {}
-      JPEG: {}
-      PNG: {}
+      SVS:
+        description: Aperio SVS whole-slide image format.
+      OME-TIFF:
+        description: Open Microscopy Environment TIFF; multi-resolution microscopy format.
+      TIFF:
+        description: Tagged Image File Format; generic raster image format.
+      NDPI:
+        description: Hamamatsu NanoZoomer Digital Pathology Image format.
+      DICOM:
+        description: Digital Imaging and Communications in Medicine; medical imaging standard.
+      JPEG:
+        description: JPEG lossy compressed image format.
+      PNG:
+        description: Portable Network Graphics lossless image format.

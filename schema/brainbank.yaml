@@ -21,31 +21,41 @@ imports:
 classes:
   BrainBank:
     tree_root: true
+    description: >-
+      Top-level ingest container for a brain bank record set. Collects all entity collections
+      (donors, samples, processes, datasets, analyses, assessments, etc.) in a single root object
+      suitable for validation and serialization.
     attributes:
       donors:
         range: Donor
         multivalued: true
         inlined_as_list: true
+        description: Registered tissue donors.
       samples:
         range: Sample
         multivalued: true
         inlined_as_list: true
+        description: All tissue and fluid samples in this record set.
       processes:
         range: Process
         multivalued: true
         inlined_as_list: true
+        description: Specimen-processing and transformation events.
       containers:
         range: Container
         multivalued: true
         inlined_as_list: true
+        description: Physical storage containers (vials, boxes, freezers, etc.).
       locations:
         range: Location
         multivalued: true
         inlined_as_list: true
+        description: Physical storage locations (rooms, buildings, sites).
       cohorts:
         range: Cohort
         multivalued: true
         inlined_as_list: true
+        description: Study cohorts referenced by donors.
       anatomical_structures:
         range: AnatomicalStructure
         multivalued: true
@@ -55,18 +65,22 @@ classes:
         range: Dataset
         multivalued: true
         inlined_as_list: true
+        description: Scientific data artifacts (expression matrices, VCFs, images, etc.).
       assays:
         range: Assay
         multivalued: true
         inlined_as_list: true
+        description: Assay process nodes linking samples to datasets.
       files:
         range: File
         multivalued: true
         inlined_as_list: true
+        description: Individual data files backing datasets.
       file_sets:
         range: FileSet
         multivalued: true
         inlined_as_list: true
+        description: Named file bundles (e.g. paired-end FASTQ pairs).
       workflow_definitions:
         range: WorkflowDefinition
         multivalued: true
@@ -81,6 +95,7 @@ classes:
         range: Assessment
         multivalued: true
         inlined_as_list: true
+        description: Pathology assessments (measurements, diagnoses) for donors and samples.
 
   # ===========================================================================
   # Lab extension layer (ported from tissue-db-linkml-schema/bank_brain_workflow.yaml).
@@ -97,72 +112,118 @@ classes:
   # --- brain-bank materials: solid CNS tissue -------------------------------
   CNSSection:
     is_a: SolidSample
-    description: A section of central-nervous-system tissue; base for named brain regions.
-  Cerebellum:    { is_a: CNSSection }
-  Cerebrum:      { is_a: CNSSection }
-  Hemisphere:    { is_a: CNSSection }
-  Medulla:       { is_a: CNSSection }
-  OlfactoryBulb: { is_a: CNSSection }
-  PinealGland:   { is_a: CNSSection }
-  Pons:          { is_a: CNSSection }
-  SubstantiaNigra: { is_a: CNSSection }
-  ChoroidPlexus: { is_a: CNSSection }
-  Pituitary:     { is_a: CNSSection }
-  SpinalCord:    { is_a: CNSSection }
-  SpinalCordBlock: { is_a: SpinalCord }
+    description: A section of central-nervous-system tissue; base class for named brain regions.
+  Cerebellum:
+    is_a: CNSSection
+    description: A cerebellum tissue specimen (hindbrain structure coordinating motor activity).
+  Cerebrum:
+    is_a: CNSSection
+    description: A cerebrum tissue specimen (largest part of the brain; includes cortex and subcortical structures).
+  Hemisphere:
+    is_a: CNSSection
+    description: A cerebral hemisphere (left or right half of the cerebrum).
+  Medulla:
+    is_a: CNSSection
+    description: A medulla oblongata tissue specimen (brainstem region controlling autonomic functions).
+  OlfactoryBulb:
+    is_a: CNSSection
+    description: An olfactory bulb tissue specimen (forebrain structure involved in smell processing).
+  PinealGland:
+    is_a: CNSSection
+    description: A pineal gland tissue specimen (epithalamic structure producing melatonin).
+  Pons:
+    is_a: CNSSection
+    description: A pons tissue specimen (brainstem region connecting cerebellum to cerebrum).
+  SubstantiaNigra:
+    is_a: CNSSection
+    description: >-
+      A substantia nigra tissue specimen (midbrain structure; dopaminergic neurons lost in Parkinson disease).
+  ChoroidPlexus:
+    is_a: CNSSection
+    description: A choroid plexus tissue specimen (structure producing cerebrospinal fluid).
+  Pituitary:
+    is_a: CNSSection
+    description: A pituitary gland tissue specimen (master endocrine gland at the base of the brain).
+  SpinalCord:
+    is_a: CNSSection
+    description: A spinal cord tissue specimen.
+  SpinalCordBlock:
+    is_a: SpinalCord
+    description: A spinal cord tissue block prepared for further sectioning or embedding.
 
   # --- brain-bank materials: other solid tissue -----------------------------
   Brain:
     is_a: SolidSample
-    description: A whole brain specimen.
+    description: A whole brain specimen (unfixed or fixed), prior to regional dissection.
   Dura:
     is_a: SolidSample
-    description: Dura mater specimen.
-  DuraBlock: { is_a: Dura }
+    description: Dura mater specimen (outermost meningeal layer surrounding the brain and spinal cord).
+  DuraBlock:
+    is_a: Dura
+    description: A dura mater tissue block prepared for further processing.
   Skin:
     is_a: SolidSample
+    description: A skin tissue specimen.
   Muscle:
     is_a: SolidSample
-  MuscleBlock: { is_a: Muscle }
+    description: A skeletal muscle tissue specimen.
+  MuscleBlock:
+    is_a: Muscle
+    description: A muscle tissue block prepared for further processing.
   BloodVessel:
     is_a: SolidSample
+    description: A blood vessel tissue specimen.
   CSFPellet:
     is_a: SolidSample
-    description: Cell pellet recovered from centrifuged CSF.
+    description: Cell pellet recovered from centrifuged cerebrospinal fluid (CSF).
   SpinalCordSlide:
     is_a: SolidSample
-    description: A stained slide cut from spinal-cord tissue.
+    description: A stained histology slide cut from spinal-cord tissue.
   Section:
     is_a: SolidSample
-    description: A cut tissue section with a dissection orientation.
+    description: A cut tissue section with a recorded dissection orientation.
     attributes:
       orientation:
         range: DissectionOrientation
-  HorizontalSection: { is_a: Section }
-  SagittalSection:   { is_a: Section }
-  CoronalSection:    { is_a: Section }
+        description: Anatomical plane in which this section was cut.
+  HorizontalSection:
+    is_a: Section
+    description: A tissue section cut in the horizontal (axial/transverse) plane.
+  SagittalSection:
+    is_a: Section
+    description: A tissue section cut in the sagittal plane (parallel to the midline).
+  CoronalSection:
+    is_a: Section
+    description: A tissue section cut in the coronal (frontal) plane.
 
   # --- brain-bank materials: fluids / extracts ------------------------------
   CSF:
     is_a: LiquidSample
-    description: Cerebrospinal fluid.
+    description: Cerebrospinal fluid specimen.
   Blood:
     is_a: LiquidSample
+    description: A blood specimen (serum, plasma, or whole blood aliquot).
   Cells:
     is_a: LiquidSample
+    description: A cell suspension specimen (e.g. cultured cells in suspension).
     attributes:
       cell_type:
-        range: CellType   # reuses tissue.CellType (dynamic CL enum)
+        range: CellType
+        description: Cell Ontology type of the cells in this suspension.
   RNA:
     is_a: LiquidSample
-    attributes:
-      concentration:
-        range: Concentration   # reuses core.Concentration
-  DNA:
-    is_a: LiquidSample
+    description: An RNA extract prepared from tissue or cells.
     attributes:
       concentration:
         range: Concentration
+        description: Concentration of the RNA extract (e.g. in ng/µL from NanoDrop).
+  DNA:
+    is_a: LiquidSample
+    description: A DNA extract prepared from tissue or cells.
+    attributes:
+      concentration:
+        range: Concentration
+        description: Concentration of the DNA extract (e.g. in ng/µL from NanoDrop).
 
   # --- brain-bank processes: banking (intake) -------------------------------
   BankFreshBrain:
@@ -172,186 +233,344 @@ classes:
       extracting DNA/RNA. Ported from bank_brain_workflow:BankFreshBrain.
     attributes:
       donor:
-        range: Donor   # was tissue_db Case
+        range: Donor
+        description: The donor whose brain is being banked.
       fixed_hemisphere:
         range: Hemisphere
         required: true
+        description: The hemisphere fixed in formalin for histology.
       frozen_cerebellum:
         range: Cerebellum
         required: true
         multivalued: true
+        description: Cerebellum specimen(s) snap-frozen for molecular assays.
       frozen_olfactory_bulb:
         range: OlfactoryBulb
         required: true
+        description: Olfactory bulb specimen snap-frozen for molecular assays.
       frozen_pineal_gland:
-        range: PinealGland   # FIX: source erroneously ranged this on OlfactoryBulb
+        range: PinealGland
         required: true
+        description: Pineal gland specimen snap-frozen for molecular assays.
       frozen_substantia_nigra:
         range: SubstantiaNigra
         required: true
         multivalued: true
+        description: Substantia nigra specimen(s) snap-frozen for molecular assays.
       frozen_pons:
         range: Pons
         required: true
         multivalued: true
+        description: Pons specimen(s) snap-frozen for molecular assays.
       frozen_medulla:
         range: Medulla
         required: true
         multivalued: true
+        description: Medulla oblongata specimen(s) snap-frozen for molecular assays.
       frozen_cerebrum:
-        range: Cerebrum   # FIX: source ranged this on undefined class `Coronal`
+        range: Cerebrum
         required: true
         multivalued: true
+        description: Cerebrum specimen(s) snap-frozen for molecular assays.
       dna:
         range: DNA
         required: true
+        description: DNA extract obtained during brain banking.
       rna:
         range: RNA
         required: true
+        description: RNA extract obtained during brain banking.
       choroid_plexus:
         range: ChoroidPlexus
         required: true
         multivalued: true
+        description: Choroid plexus specimen(s) snap-frozen for molecular assays.
       pituitary:
         range: Pituitary
         required: true
+        description: Pituitary gland specimen snap-frozen for molecular assays.
       other_sections:
         range: SolidSample
         multivalued: true
+        description: Any additional tissue sections collected during banking.
   BankFixedBrain:
     is_a: Process
+    description: Bank a chemically fixed (formalin-fixed) whole brain or hemisphere.
     attributes:
       donor:
         range: Donor
+        description: The donor whose fixed brain is being banked.
       brain:
         range: Brain
+        description: The fixed brain specimen being banked.
   BankDura:
     is_a: Process
+    description: Bank dura mater tissue, distributing specimens into fixed, frozen, and culture-media fractions.
     attributes:
-      fixed_dura:  { range: Dura, required: true, multivalued: true }
-      frozen_dura: { range: Dura, required: true, multivalued: true }
-      media_dura:  { range: Dura, required: true, multivalued: true }
-      remainder:   { range: Dura }
+      fixed_dura:
+        range: Dura
+        required: true
+        multivalued: true
+        description: Dura mater specimen(s) fixed in formalin.
+      frozen_dura:
+        range: Dura
+        required: true
+        multivalued: true
+        description: Dura mater specimen(s) snap-frozen.
+      media_dura:
+        range: Dura
+        required: true
+        multivalued: true
+        description: Dura mater specimen(s) placed in culture medium.
+      remainder:
+        range: Dura
+        description: Leftover dura mater tissue after distribution.
   BankCSF:
     is_a: Process
+    description: >-
+      Bank cerebrospinal fluid: aliquot into frozen aliquots, centrifuge to recover a cell pellet, and retain residual stock.
     attributes:
-      frozen_csf:     { range: CSF, required: true, multivalued: true }
-      pellet:         { range: CSFPellet, required: true }
-      residual_stock: { range: CSF }
+      frozen_csf:
+        range: CSF
+        required: true
+        multivalued: true
+        description: CSF aliquots snap-frozen for storage.
+      pellet:
+        range: CSFPellet
+        required: true
+        description: Cell pellet recovered by centrifugation of the CSF.
+      residual_stock:
+        range: CSF
+        description: Residual CSF stock after aliquoting.
   BankBlood:
     is_a: Process
+    description: >-
+      Bank a blood specimen: separate into typed aliquots (serum or plasma) and retain residual stock.
     attributes:
-      blood_sample_type: { range: BloodSampleType }
-      blood_sample:      { range: Blood, required: true, multivalued: true }
-      residual_stock:    { range: Blood }
+      blood_sample_type:
+        range: BloodSampleType
+        description: Type of blood fraction collected (serum or plasma).
+      blood_sample:
+        range: Blood
+        required: true
+        multivalued: true
+        description: Blood aliquots collected and banked.
+      residual_stock:
+        range: Blood
+        description: Residual blood stock after aliquoting.
   BankSkin:
     is_a: Process
+    description: >-
+      Bank skin tissue: distribute specimens into frozen and fixed fractions, with optional culture-medium preparation.
     attributes:
-      culture_media: { range: CultureMedia }
-      frozen_skin:   { range: Skin, required: true, multivalued: true }
-      fixed_skin:    { range: Skin, multivalued: true }
+      culture_media:
+        range: CultureMedia
+        description: Culture medium used if skin tissue is being prepared for cell culture.
+      frozen_skin:
+        range: Skin
+        required: true
+        multivalued: true
+        description: Skin specimen(s) snap-frozen for storage.
+      fixed_skin:
+        range: Skin
+        multivalued: true
+        description: Skin specimen(s) fixed in formalin.
   BankMuscle:
     is_a: Process
+    description: >-
+      Bank muscle tissue: distribute specimens into frozen and formalin-fixed fractions.
     attributes:
-      frozen_muscle: { range: Muscle, required: true, multivalued: true }
-      fixed_muscle:  { range: Muscle, required: true, multivalued: true }
+      frozen_muscle:
+        range: Muscle
+        required: true
+        multivalued: true
+        description: Muscle specimen(s) snap-frozen for storage.
+      fixed_muscle:
+        range: Muscle
+        required: true
+        multivalued: true
+        description: Muscle specimen(s) fixed in formalin.
   BankVessels:
     is_a: Process
+    description: Bank blood vessel tissue specimens.
     attributes:
-      frozen_vessels: { range: BloodVessel, multivalued: true }
+      frozen_vessels:
+        range: BloodVessel
+        multivalued: true
+        description: Blood vessel specimen(s) snap-frozen for storage.
   BankSpinalCord:
     is_a: Process
+    description: >-
+      Bank spinal cord tissue: distribute specimens into frozen and formalin-fixed fractions.
     attributes:
-      frozen_spinal_cord: { range: SpinalCord, multivalued: true }
-      fixed_spinal_cord:  { range: SpinalCord, multivalued: true }
+      frozen_spinal_cord:
+        range: SpinalCord
+        multivalued: true
+        description: Spinal cord specimen(s) snap-frozen for storage.
+      fixed_spinal_cord:
+        range: SpinalCord
+        multivalued: true
+        description: Spinal cord specimen(s) fixed in formalin.
 
   # --- brain-bank processes: blocking / dissection --------------------------
   BlockDura:
     is_a: Process
+    description: Block dura mater tissue into smaller pieces for histology or molecular processing.
     attributes:
-      dura_blocks: { range: DuraBlock, required: true, multivalued: true }
+      dura_blocks:
+        range: DuraBlock
+        required: true
+        multivalued: true
+        description: Dura blocks produced by this blocking process.
     slot_usage:
-      inputs: { range: Dura, required: true }
+      inputs:
+        range: Dura
+        required: true
   BlockMuscle:
     is_a: Process
+    description: Block muscle tissue into smaller pieces for histology or molecular processing.
     attributes:
-      muscle_blocks: { range: MuscleBlock, required: true, multivalued: true }
+      muscle_blocks:
+        range: MuscleBlock
+        required: true
+        multivalued: true
+        description: Muscle blocks produced by this blocking process.
     slot_usage:
-      inputs: { range: Muscle, required: true }
+      inputs:
+        range: Muscle
+        required: true
   BlockSpinalCord:
     is_a: Process
+    description: Block spinal cord tissue into segments for histology or molecular processing.
     attributes:
-      blocked_spinal_cord: { range: SpinalCordBlock }
+      blocked_spinal_cord:
+        range: SpinalCordBlock
+        description: Spinal cord block produced by this blocking process.
     slot_usage:
-      inputs: { range: SpinalCord }
+      inputs:
+        range: SpinalCord
   BlockFrozenBrain:
     is_a: Process
+    description: Block a frozen (unfixed) brain or brain region into pieces for further dissection or storage.
   BlockFixedBrain:
     is_a: Process
+    description: Block a fixed (formalin-fixed) brain for histology embedding and sectioning.
   BlockFixedHemisphere:
     is_a: Process
+    description: Block a fixed hemisphere into coronal slabs for systematic regional sampling.
     attributes:
-      notes: {}
+      notes:
+        description: Free-text notes about blocking decisions (e.g. regional boundaries used).
   SectionFixedBrain:
     is_a: Process
+    description: Section (cut) a fixed brain or hemisphere into thin sections for histology.
     attributes:
-      brain:      { range: Brain }
-      hemisphere: { range: Hemisphere }
+      brain:
+        range: Brain
+        description: Fixed whole brain being sectioned, if applicable.
+      hemisphere:
+        range: Hemisphere
+        description: Fixed hemisphere being sectioned, if applicable.
   DissectFrozenBrain:
     is_a: Process
+    description: Dissect a frozen brain or brain region into named CNS sections for molecular assays.
     attributes:
-      new_samples: { range: CNSSection, required: true, multivalued: true }
+      new_samples:
+        range: CNSSection
+        required: true
+        multivalued: true
+        description: CNS sections produced by this dissection.
     slot_usage:
-      inputs: { range: CNSSection, required: true }
+      inputs:
+        range: CNSSection
+        required: true
   DissectFixedBrain:
     is_a: Process
+    description: Dissect a fixed brain or brain region into named CNS sections for histology.
     attributes:
-      new_fixed_samples: { range: CNSSection, required: true }
+      new_fixed_samples:
+        range: CNSSection
+        required: true
+        description: CNS sections produced by this dissection.
     slot_usage:
-      inputs: { range: CNSSection, required: true }
+      inputs:
+        range: CNSSection
+        required: true
 
   # --- brain-bank processes: culture ----------------------------------------
   CultureTissue:
     is_a: Process
     abstract: true
+    description: Abstract base for tissue-culture processes that establish cell cultures from brain bank specimens.
     attributes:
-      culture_media: { range: CultureMedia }
+      culture_media:
+        range: CultureMedia
+        description: Culture medium used to maintain the tissue or cells during culture.
   CultureDura:
     is_a: CultureTissue
+    description: Establish a cell culture from dura mater tissue (typically fibroblast culture).
     attributes:
-      cells: { range: Cells }
+      cells:
+        range: Cells
+        description: Cell suspension produced from the dura culture.
     slot_usage:
-      inputs: { range: Dura, required: true }
+      inputs:
+        range: Dura
+        required: true
   CultureSkin:
     is_a: CultureTissue
+    description: Establish a cell culture from skin tissue (typically fibroblast culture).
     slot_usage:
-      inputs: { range: Skin, required: true }
+      inputs:
+        range: Skin
+        required: true
 
   # --- brain-bank processes: slide preparation ------------------------------
   SliceTissueToSlide:
     is_a: Process
+    description: >-
+      Base process for cutting tissue into slides and applying an IHC stain. Concrete subclasses
+      specify the tissue type.
     attributes:
-      stain: { range: StainType }   # reuses tissue.StainType
+      stain:
+        range: StainType
+        description: IHC stain applied to the tissue section on the slide.
   CreateBrainSlide:
     is_a: SliceTissueToSlide
+    description: Cut brain tissue and mount on a slide with an IHC stain applied.
   CreateSpinalCordSlide:
     is_a: SliceTissueToSlide
+    description: Cut spinal cord tissue and mount on a slide with an IHC stain applied.
     attributes:
-      spinal_cord_slides: { range: SpinalCordSlide, required: true, multivalued: true }
+      spinal_cord_slides:
+        range: SpinalCordSlide
+        required: true
+        multivalued: true
+        description: Stained spinal cord slides produced by this process.
     slot_usage:
-      inputs: { range: SpinalCord, required: true }
+      inputs:
+        range: SpinalCord
+        required: true
 
 enums:
   BloodSampleType:
+    description: Fractions of blood collected from donors for biobanking.
     permissible_values:
-      serum: {}
-      plasma: {}
+      serum:
+        description: Blood serum; the liquid fraction remaining after clotting (acellular, clotting factors removed).
+      plasma:
+        description: Blood plasma; the liquid fraction with anticoagulant (acellular, clotting factors retained).
   DissectionOrientation:
+    description: Anatomical plane in which a brain tissue section was cut.
     permissible_values:
-      Coronal: {}
-      Sagittal: {}
-      Axial/Horizontal: {}
+      Coronal:
+        description: Section cut in the coronal (frontal) plane, perpendicular to the rostro-caudal axis.
+      Sagittal:
+        description: Section cut in the sagittal plane, parallel to the midline.
+      Axial/Horizontal:
+        description: Section cut in the horizontal (axial/transverse) plane, perpendicular to the vertical axis.
   CultureMedia:
-    description: Culture medium used. STUB — expand as media are catalogued.
+    description: Culture medium used in tissue-culture processes. STUB — expand as media are catalogued.
     permissible_values:
-      fibroblast: {}
+      fibroblast:
+        description: Standard fibroblast growth medium, used for dura and skin cell cultures.

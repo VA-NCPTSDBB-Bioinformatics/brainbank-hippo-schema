@@ -24,11 +24,15 @@ classes:
     attributes:
       person:
         range: Person
+        description: The person (donor) this assessment is about, if applicable.
       sample:
         range: Sample
-      method: {}
+        description: The tissue sample this assessment is about, if applicable.
+      method:
+        description: Method or protocol used to perform this assessment.
       asserted_on:
         range: date
+        description: Date on which this assessment was made or recorded.
 
   Measurement:
     is_a: Assessment
@@ -40,20 +44,27 @@ classes:
       measure_name:
         range: MeasureType
         required: true
+        description: The neuropathology staging scale or measure being recorded (e.g. Braak NFT stage).
       value_numeric:
         range: float
-      value_text: {}
+        description: Numeric value of the measurement (e.g. a Braak stage integer or continuous score).
+      value_text:
+        description: Text value of the measurement, for categorical or free-text scores.
 
   Diagnosis:
     is_a: Assessment
-    description: A disease diagnosis. PROVISIONAL.
+    description: A disease diagnosis recorded for a donor. PROVISIONAL.
     attributes:
       disease:
         range: Disease
         required: true
+        description: The MONDO disease term for this diagnosis.
 
 enums:
   Disease:
+    description: >-
+      Disease terms drawn from the Mondo Disease Ontology (MONDO), anchored at the root
+      MONDO:0000001 (disease or disorder). Used to record diagnoses.
     reachable_from:
       source_ontology: obo:mondo
       source_nodes:

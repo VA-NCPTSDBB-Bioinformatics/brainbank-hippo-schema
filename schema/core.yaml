@@ -10,6 +10,7 @@ prefixes:
   cl: http://purl.obolibrary.org/obo/CL_
   obi: http://purl.obolibrary.org/obo/OBI_
   ro: http://purl.obolibrary.org/obo/RO_
+  UO: http://purl.obolibrary.org/obo/UO_
 default_prefix: core
 default_range: string
 imports:
@@ -29,7 +30,9 @@ classes:
         description: Technical identifier (UUID/CURIE); becomes hippo-managed later.
       name:
         required: true
-      description: {}
+        description: Human-readable label for the entity.
+      description:
+        description: Free-text narrative description of the entity.
       category:
         designates_type: true
         range: string
@@ -45,16 +48,21 @@ classes:
       subject:
         range: NamedThing
         required: true
+        description: The entity playing the subject role in this relationship.
       predicate:
         range: uriorcurie
         description: Relation Ontology predicate, e.g. RO:0001000 'derives from'.
       object:
         range: NamedThing
         required: true
-      evidence_type: {}
-      method: {}
+        description: The entity playing the object role in this relationship.
+      evidence_type:
+        description: Type of evidence supporting this association (free text; formalize later).
+      method:
+        description: Method or approach used to establish this association.
       asserted_on:
         range: date
+        description: Date on which this association was first asserted or recorded.
 
   Protocol:
     is_a: NamedThing
@@ -65,6 +73,7 @@ classes:
         description: URL, directory, or other location where the SOP can be found.
       version:
         required: true
+        description: Version string for this SOP or method document.
 
   Activity:
     abstract: true
@@ -85,29 +94,73 @@ classes:
 
   Quantity:
     abstract: true
+    description: Abstract base for a numeric measurement paired with a unit.
     attributes:
       value:
         range: float
+        description: Numeric magnitude of the measurement.
   Mass:
     is_a: Quantity
+    description: A mass measurement (e.g. tissue weight).
     attributes:
       unit:
         range: MassUnit
+        description: Unit of mass for this measurement.
   Volume:
     is_a: Quantity
+    description: A volume measurement (e.g. aliquot volume).
     attributes:
       unit:
         range: VolumeUnit
+        description: Unit of volume for this measurement.
   Concentration:
     is_a: Quantity
+    description: A concentration measurement (e.g. RNA/DNA concentration in ng/µL).
     attributes:
       unit:
         range: ConcentrationUnit
+        description: Unit of concentration for this measurement.
 
 enums:
   MassUnit:
-    permissible_values: { ng: {}, ug: {}, mg: {}, g: {}, kg: {} }
+    description: SI-derived units of mass used for specimen and extract measurements.
+    permissible_values:
+      ng:
+        description: Nanogram (10⁻⁹ g); typical for trace nucleic-acid quantities.
+        meaning: UO:0000024
+      ug:
+        description: Microgram (10⁻⁶ g).
+        meaning: UO:0000023
+      mg:
+        description: Milligram (10⁻³ g); typical for tissue block weights.
+        meaning: UO:0000022
+      g:
+        description: Gram.
+        meaning: UO:0000021
+      kg:
+        description: Kilogram (10³ g); used for whole-organ weights.
+        meaning: UO:0000009
   VolumeUnit:
-    permissible_values: { nl: {}, ul: {}, ml: {}, l: {} }
+    description: SI-derived units of volume used for liquid sample and aliquot measurements.
+    permissible_values:
+      nl:
+        description: Nanoliter (10⁻⁹ L); used for ultra-small assay volumes.
+        meaning: UO:0000102
+      ul:
+        description: Microliter (10⁻⁶ L); typical for aliquot volumes.
+        meaning: UO:0000101
+      ml:
+        description: Milliliter (10⁻³ L); typical for CSF and blood aliquots.
+        meaning: UO:0000098
+      l:
+        description: Liter; used for large bulk volumes.
+        meaning: UO:0000099
   ConcentrationUnit:
-    permissible_values: { ng_ul: {}, ug_ul: {}, mg_ml: {} }
+    description: Units of mass-per-volume concentration used for nucleic-acid and protein extracts.
+    permissible_values:
+      ng_ul:
+        description: Nanograms per microliter; standard unit for RNA/DNA concentration (e.g. NanoDrop output).
+      ug_ul:
+        description: Micrograms per microliter; higher-range concentration unit.
+      mg_ml:
+        description: Milligrams per milliliter; typical unit for protein concentrations.

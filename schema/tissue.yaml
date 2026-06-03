@@ -15,10 +15,14 @@ classes:
   Sample:
     abstract: true
     is_a: NamedThing
+    description: >-
+      An abstract physical specimen obtained from a donor. Concrete subclasses are
+      SolidSample and LiquidSample; brain-bank material types (CNSSection, CSF, Blood, …)
+      extend those in the brainbank extension layer.
     attributes:
       sample_id:
         required: true
-        description: Business identifier.
+        description: Business identifier (human-facing sample/specimen ID).
       donor:
         range: Donor
         required: true
@@ -26,8 +30,10 @@ classes:
       anatomical_site:
         range: AnatomicalStructure
         multivalued: true
+        description: Anatomical region(s) from which this sample was collected.
       container:
         range: Container
+        description: The storage container currently holding this sample.
       derived_from:
         range: Sample
         description: Parent specimen this sample was produced from.
@@ -37,44 +43,57 @@ classes:
 
   SolidSample:
     is_a: Sample
+    description: A solid or semi-solid tissue specimen (e.g. a tissue block, section, or slab).
     attributes:
       format:
         range: SolidSampleFormat
         required: true
+        description: Physical format of this solid specimen (e.g. Slab, Block, Section).
       mass:
         range: Mass
+        description: Mass of the specimen.
     slot_usage:
       derived_from:
         range: SolidSample
 
   LiquidSample:
     is_a: Sample
+    description: A liquid biological specimen or extract (e.g. CSF, blood aliquot, nucleic-acid extract).
     attributes:
       format:
         range: LiquidSampleFormat
+        description: Aliquot format of this liquid specimen.
       volume:
         range: Volume
+        description: Volume of the liquid specimen.
     slot_usage:
       derived_from:
         range: LiquidSample
 
   Container:
     is_a: NamedThing
+    description: A physical storage container (tube, box, freezer, etc.) that holds one or more samples.
     attributes:
       type:
         range: ContainerType
+        description: Type of storage container (e.g. Cryovial, Box, Freezer).
       location:
         range: Location
+        description: Physical location where this container is stored.
       parent:
         range: Container
+        description: Parent container this container is nested within (e.g. box within freezer).
 
   Location:
     is_a: NamedThing
+    description: A physical storage location (room, freezer unit, building, site).
     attributes:
       location_type:
         range: LocationType
+        description: Type of location (Site, Building, or Room).
       parent_location:
         range: Location
+        description: The parent location this location belongs to (e.g. room within building).
 
   Process:
     is_a: Activity
@@ -86,53 +105,92 @@ classes:
       inputs:
         range: Sample
         multivalued: true
+        description: Input specimens consumed or transformed by this process.
       outputs:
         range: Sample
         multivalued: true
+        description: Specimens produced as output of this process.
 
 enums:
   SolidSampleFormat:
+    description: Physical format categories for solid tissue specimens.
     permissible_values:
-      Slab: {}
-      Coronal slab: {}
-      Block: {}
-      Cassette: {}
-      Section: {}
-      Pellet: {}
-      Roll: {}
-      Hemisphere: {}
-      Whole brain: {}
-      Remainder: {}
+      Slab:
+        description: A thick, unsectioned cut of tissue.
+      Coronal slab:
+        description: A slab cut in the coronal plane.
+      Block:
+        description: A tissue block prepared for further sectioning (e.g. paraffin or frozen block).
+      Cassette:
+        description: Tissue enclosed in a histology processing cassette.
+      Section:
+        description: A thin tissue section cut from a block.
+      Pellet:
+        description: A cell or tissue pellet (e.g. from centrifugation).
+      Roll:
+        description: Tissue rolled into a cylinder format (sometimes used for gut or thin-sheet tissue).
+      Hemisphere:
+        description: A cerebral hemisphere.
+      Whole brain:
+        description: An intact whole brain specimen.
+      Remainder:
+        description: The leftover tissue after other portions have been distributed.
   LiquidSampleFormat:
+    description: Format categories for liquid biological specimens and extracts.
     permissible_values:
-      Aliquot: {}
-      Remainder: {}
+      Aliquot:
+        description: A measured sub-volume distributed from a larger stock.
+      Remainder:
+        description: The residual volume remaining after aliquots have been taken.
   ContainerType:
+    description: Types of physical storage containers used in the brain bank.
     permissible_values:
-      Box: {}
-      Falcon Tube: {}
-      Cryovial: {}
-      Eppendorff: {}
-      Conical Tube 15ml: {}
-      Conical Tube 50ml: {}
-      Cassette: {}
-      Slide Box: {}
-      Freezer: {}
-      Refrigerator: {}
-      Shelf: {}
-      Rack: {}
-      Drawer: {}
+      Box:
+        description: A storage box (typically holds multiple tubes or vials).
+      Falcon Tube:
+        description: A conical plastic centrifuge tube (15 mL or 50 mL).
+      Cryovial:
+        description: A cryogenic storage vial for long-term freezing.
+      Eppendorff:
+        description: A 1.5–2 mL microcentrifuge tube.
+      Conical Tube 15ml:
+        description: A 15 mL conical centrifuge tube.
+      Conical Tube 50ml:
+        description: A 50 mL conical centrifuge tube.
+      Cassette:
+        description: A histology processing cassette holding tissue for embedding.
+      Slide Box:
+        description: A box designed to store histology slides.
+      Freezer:
+        description: An ultra-low temperature (ULT) or standard freezer unit.
+      Refrigerator:
+        description: A standard refrigerator (typically 2–8 °C).
+      Shelf:
+        description: A shelf within a storage unit.
+      Rack:
+        description: A rack for holding tubes or boxes within a freezer or refrigerator.
+      Drawer:
+        description: A drawer compartment within a storage unit.
   LocationType:
+    description: Hierarchical categories of physical storage locations.
     permissible_values:
-      Site: {}
-      Building: {}
-      Room: {}
+      Site:
+        description: A top-level physical site or facility (e.g. a VA medical center campus).
+      Building:
+        description: A building within a site.
+      Room:
+        description: A room within a building.
   StainType:
+    description: Immunohistochemical (IHC) stains used in histology slide preparation.
     permissible_values:
-      NeuN: {}
-      Iba1: {}
-      GFAP: {}
+      NeuN:
+        description: NeuN (Neuronal Nuclei) antibody stain; marks mature neurons.
+      Iba1:
+        description: Iba1 (Ionized calcium-binding adaptor molecule 1) stain; marks microglia.
+      GFAP:
+        description: GFAP (Glial Fibrillary Acidic Protein) stain; marks astrocytes.
   CellType:
+    description: Cell types from the Cell Ontology (CL), anchored at the root cell term CL:0000000.
     reachable_from:
       source_ontology: obo:cl
       source_nodes:

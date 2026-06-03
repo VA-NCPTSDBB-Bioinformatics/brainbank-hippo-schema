@@ -24,25 +24,35 @@ classes:
           Species of the individual. Defaults conceptually to Homo sapiens (NCBITaxon:9606);
           an ifabsent default is omitted because Species is a dynamic (reachable_from) enum
           with no static permissible value for gen-pydantic to materialize.
-      sex: {}
+      sex:
+        description: Biological sex of the individual (free text; use standard values such as male/female/unknown).
       cohort:
         range: Cohort
         multivalued: true
+        description: Study cohort(s) this individual belongs to.
 
   Donor:
     is_a: Person
-    description: A deceased individual who donated tissue.
+    description: A deceased individual who donated tissue to the brain bank.
     attributes:
       age_at_death:
         range: float
+        description: Age of the donor at time of death, in years.
       post_mortem_interval_hours:
         range: float
+        description: >-
+          Post-mortem interval (PMI): time elapsed between death and tissue collection, in hours.
+          Shorter PMI is generally associated with better tissue quality for molecular assays.
 
   Cohort:
     is_a: NamedThing
+    description: A named study group or research cohort to which donors may be assigned.
 
 enums:
   Species:
+    description: >-
+      Taxonomic species of a Person, drawn from the NCBI Taxonomy. Anchored at Homo sapiens
+      (NCBITaxon:9606); widen the source_nodes if non-human subjects are added.
     reachable_from:
       source_ontology: obo:ncbitaxon
       source_nodes:

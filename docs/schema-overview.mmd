@@ -1,0 +1,86 @@
+```mermaid
+erDiagram
+Analysis {
+
+}
+AnatomicalStructure {
+
+}
+Assay {
+
+}
+BrainBank {
+
+}
+Cohort {
+
+}
+Container {
+
+}
+Dataset {
+
+}
+Donor {
+
+}
+File {
+
+}
+FileSet {
+
+}
+Location {
+
+}
+Parameter {
+
+}
+Person {
+
+}
+Process {
+
+}
+Protocol {
+
+}
+WorkflowDefinition {
+
+}
+
+Analysis ||--|o Analysis : "parent_analysis"
+Analysis ||--|o Protocol : "protocol"
+Analysis ||--}o Dataset : "input_datasets, output_datasets"
+Analysis ||--}o Parameter : "parameters"
+AnatomicalStructure ||--|o AnatomicalStructure : "part_of"
+Assay ||--|o Protocol : "protocol"
+Assay ||--}o Sample : "inputs"
+BrainBank ||--}o Analysis : "analyses"
+BrainBank ||--}o AnatomicalStructure : "anatomical_structures"
+BrainBank ||--}o Assay : "assays"
+BrainBank ||--}o Assessment : "assessments"
+BrainBank ||--}o Cohort : "cohorts"
+BrainBank ||--}o Container : "containers"
+BrainBank ||--}o Dataset : "datasets"
+BrainBank ||--}o Donor : "donors"
+BrainBank ||--}o File : "files"
+BrainBank ||--}o FileSet : "file_sets"
+BrainBank ||--}o Location : "locations"
+BrainBank ||--}o Process : "processes"
+BrainBank ||--}o Sample : "samples"
+BrainBank ||--}o WorkflowDefinition : "workflow_definitions"
+Container ||--|o Container : "parent"
+Container ||--|o Location : "location"
+Dataset ||--|o Activity : "produced_by"
+Dataset ||--}o File : "files"
+Dataset ||--}o FileSet : "file_sets"
+Donor ||--}o Cohort : "cohort"
+FileSet ||--}| File : "files"
+Location ||--|o Location : "parent_location"
+Person ||--}o Cohort : "cohort"
+Process ||--|o Protocol : "protocol"
+Process ||--}o Sample : "inputs, outputs"
+
+```
+

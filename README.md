@@ -10,6 +10,8 @@ small, mechanical change rather than a rewrite.
 
 > Status: **draft for review.** Design decisions are recorded in [`DESIGN.md`](DESIGN.md).
 
+**[📖 Reference documentation](https://va-ncptsdbb-bioinformatics.github.io/brainbank-hippo-schema/)** — auto-generated from the schema, deployed to GitHub Pages.
+
 ## Layout
 
 ```
@@ -23,13 +25,25 @@ DESIGN.md      the design brief and decision log
 
 A clean dependency DAG (lower layers never reference upper layers):
 
+```mermaid
+graph LR
+    core --> anatomy
+    core --> person
+    anatomy --> tissue
+    person --> tissue
+    tissue --> dataset
+    dataset --> analysis
+    tissue --> pathology
+    core --> brainbank
+    anatomy --> brainbank
+    person --> brainbank
+    tissue --> brainbank
+    dataset --> brainbank
+    analysis --> brainbank
+    pathology --> brainbank
 ```
-core ──┬── anatomy ──┐
-       └── person ───┤
-                tissue ──┬── dataset ──── analysis
-                         └── pathology (provisional)
-                              brainbank   (tree-root container + lab extension layer)
-```
+
+See [`docs/diagrams.md`](docs/diagrams.md) for the full entity-relation diagram and provenance spine.
 
 | Module | Purpose |
 |---|---|

@@ -1,0 +1,108 @@
+```mermaid
+erDiagram
+Activity {
+
+}
+Analysis {
+
+}
+AnatomicalStructure {
+
+}
+Assay {
+
+}
+Cohort {
+
+}
+Container {
+
+}
+Dataset {
+
+}
+Donor {
+
+}
+File {
+
+}
+FileSet {
+
+}
+LiquidSample {
+
+}
+Location {
+
+}
+Mass {
+
+}
+Parameter {
+
+}
+Process {
+
+}
+Protocol {
+
+}
+Sample {
+
+}
+SolidSample {
+
+}
+Volume {
+
+}
+WorkflowDefinition {
+
+}
+WorkflowRun {
+
+}
+
+Activity ||--|o Protocol : "protocol"
+Analysis ||--|o Analysis : "parent_analysis"
+Analysis ||--|o Protocol : "protocol"
+Analysis ||--}o Dataset : "input_datasets, output_datasets"
+Analysis ||--}o Parameter : "parameters"
+AnatomicalStructure ||--|o AnatomicalStructure : "part_of"
+Assay ||--|o Protocol : "protocol"
+Assay ||--}o Sample : "inputs"
+Container ||--|o Container : "parent"
+Container ||--|o Location : "location"
+Dataset ||--|o Activity : "produced_by"
+Dataset ||--}o File : "files"
+Dataset ||--}o FileSet : "file_sets"
+Donor ||--}o Cohort : "cohort"
+FileSet ||--}| File : "files"
+LiquidSample ||--|o Container : "container"
+LiquidSample ||--|o LiquidSample : "derived_from"
+LiquidSample ||--|o Process : "produced_by"
+LiquidSample ||--|o Volume : "volume"
+LiquidSample ||--|| Donor : "donor"
+LiquidSample ||--}o AnatomicalStructure : "anatomical_site"
+Location ||--|o Location : "parent_location"
+Process ||--|o Protocol : "protocol"
+Process ||--}o Sample : "inputs, outputs"
+Sample ||--|o Container : "container"
+Sample ||--|o Process : "produced_by"
+Sample ||--|o Sample : "derived_from"
+Sample ||--|| Donor : "donor"
+Sample ||--}o AnatomicalStructure : "anatomical_site"
+SolidSample ||--|o Container : "container"
+SolidSample ||--|o Mass : "mass"
+SolidSample ||--|o Process : "produced_by"
+SolidSample ||--|o SolidSample : "derived_from"
+SolidSample ||--|| Donor : "donor"
+SolidSample ||--}o AnatomicalStructure : "anatomical_site"
+WorkflowRun ||--|o Analysis : "parent_analysis"
+WorkflowRun ||--|| WorkflowDefinition : "protocol"
+WorkflowRun ||--}o Dataset : "input_datasets, output_datasets"
+WorkflowRun ||--}o Parameter : "parameters"
+
+```
+

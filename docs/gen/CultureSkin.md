@@ -1,0 +1,282 @@
+---
+search:
+  boost: 10.0
+---
+
+# Class: CultureSkin 
+
+
+_Establish a cell culture from skin tissue (typically fibroblast culture)._
+
+
+
+<div data-search-exclude markdown="1">
+
+
+
+URI: [brainbank:CultureSkin](https://w3id.org/VA-NCPTSDBB/brainbank/CultureSkin)
+
+
+
+
+
+```mermaid
+ classDiagram
+    class CultureSkin
+    click CultureSkin href "../CultureSkin/"
+      CultureTissue <|-- CultureSkin
+        click CultureTissue href "../CultureTissue/"
+      
+      CultureSkin : category
+        
+      CultureSkin : culture_media
+        
+          
+    
+        
+        
+        CultureSkin --> "0..1" CultureMedia : culture_media
+        click CultureMedia href "../CultureMedia/"
+    
+
+        
+      CultureSkin : description
+        
+      CultureSkin : id
+        
+      CultureSkin : inputs
+        
+          
+    
+        
+        
+        CultureSkin --> "1..*" Skin : inputs
+        click Skin href "../Skin/"
+    
+
+        
+      CultureSkin : name
+        
+      CultureSkin : outputs
+        
+          
+    
+        
+        
+        CultureSkin --> "*" Sample : outputs
+        click Sample href "../Sample/"
+    
+
+        
+      CultureSkin : performed_on
+        
+      CultureSkin : protocol
+        
+          
+    
+        
+        
+        CultureSkin --> "0..1 _recommended_" Protocol : protocol
+        click Protocol href "../Protocol/"
+    
+
+        
+      
+```
+
+
+
+
+
+## Inheritance
+* [NamedThing](NamedThing.md)
+    * [Activity](Activity.md)
+        * [Process](Process.md)
+            * [CultureTissue](CultureTissue.md)
+                * **CultureSkin**
+
+
+## Slots
+
+| Name | Cardinality and Range | Description | Inheritance |
+| ---  | --- | --- | --- |
+| [culture_media](culture_media.md) | 0..1 <br/> [CultureMedia](CultureMedia.md) | Culture medium used to maintain the tissue or cells during culture | [CultureTissue](CultureTissue.md) |
+| [inputs](inputs.md) | 1..* <br/> [Skin](Skin.md) | Input specimens consumed or transformed by this process | [Process](Process.md) |
+| [outputs](outputs.md) | * <br/> [Sample](Sample.md) | Specimens produced as output of this process | [Process](Process.md) |
+| [protocol](protocol.md) | 0..1 _recommended_ <br/> [Protocol](Protocol.md) | The SOP/method this activity followed | [Activity](Activity.md) |
+| [performed_on](performed_on.md) | 0..1 <br/> [Date](Date.md) | Date the activity was carried out | [Activity](Activity.md) |
+| [id](id.md) | 1 <br/> [Uriorcurie](Uriorcurie.md) | Technical identifier (UUID/CURIE); becomes hippo-managed later | [NamedThing](NamedThing.md) |
+| [name](name.md) | 1 <br/> [String](String.md) | Human-readable label for the entity | [NamedThing](NamedThing.md) |
+| [description](description.md) | 0..1 <br/> [String](String.md) | Free-text narrative description of the entity | [NamedThing](NamedThing.md) |
+| [category](category.md) | 0..1 <br/> [String](String.md) | Names the concrete class of this instance | [NamedThing](NamedThing.md) |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Identifier and Mapping Information
+
+
+
+
+
+### Schema Source
+
+
+* from schema: https://w3id.org/VA-NCPTSDBB/brainbank/brainbank
+
+
+
+
+## Mappings
+
+| Mapping Type | Mapped Value |
+| ---  | ---  |
+| self | brainbank:CultureSkin |
+| native | brainbank:CultureSkin |
+
+
+
+
+
+
+## LinkML Source
+
+<!-- TODO: investigate https://stackoverflow.com/questions/37606292/how-to-create-tabbed-code-blocks-in-mkdocs-or-sphinx -->
+
+### Direct
+
+<details>
+```yaml
+name: CultureSkin
+description: Establish a cell culture from skin tissue (typically fibroblast culture).
+from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/brainbank
+is_a: CultureTissue
+slot_usage:
+  inputs:
+    name: inputs
+    range: Skin
+    required: true
+
+```
+</details>
+
+### Induced
+
+<details>
+```yaml
+name: CultureSkin
+description: Establish a cell culture from skin tissue (typically fibroblast culture).
+from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/brainbank
+is_a: CultureTissue
+slot_usage:
+  inputs:
+    name: inputs
+    range: Skin
+    required: true
+attributes:
+  culture_media:
+    name: culture_media
+    description: Culture medium used to maintain the tissue or cells during culture.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/brainbank
+    owner: CultureSkin
+    domain_of:
+    - BankSkin
+    - CultureTissue
+    range: CultureMedia
+  inputs:
+    name: inputs
+    description: Input specimens consumed or transformed by this process.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/tissue
+    rank: 1000
+    owner: CultureSkin
+    domain_of:
+    - Process
+    - Assay
+    range: Skin
+    required: true
+    multivalued: true
+  outputs:
+    name: outputs
+    description: Specimens produced as output of this process.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/tissue
+    rank: 1000
+    owner: CultureSkin
+    domain_of:
+    - Process
+    range: Sample
+    multivalued: true
+  protocol:
+    name: protocol
+    description: The SOP/method this activity followed.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/core
+    rank: 1000
+    owner: CultureSkin
+    domain_of:
+    - Activity
+    range: Protocol
+    recommended: true
+  performed_on:
+    name: performed_on
+    description: Date the activity was carried out.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/core
+    rank: 1000
+    owner: CultureSkin
+    domain_of:
+    - Activity
+    range: date
+  id:
+    name: id
+    description: Technical identifier (UUID/CURIE); becomes hippo-managed later.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/core
+    rank: 1000
+    identifier: true
+    owner: CultureSkin
+    domain_of:
+    - NamedThing
+    range: uriorcurie
+    required: true
+  name:
+    name: name
+    description: Human-readable label for the entity.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/core
+    rank: 1000
+    owner: CultureSkin
+    domain_of:
+    - NamedThing
+    range: string
+    required: true
+  description:
+    name: description
+    description: Free-text narrative description of the entity.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/core
+    rank: 1000
+    owner: CultureSkin
+    domain_of:
+    - NamedThing
+    range: string
+  category:
+    name: category
+    description: Names the concrete class of this instance. Lets polymorphic inlined
+      collections (e.g. a `samples` list holding SolidSample/LiquidSample) instantiate
+      the right subclass.
+    from_schema: https://w3id.org/VA-NCPTSDBB/brainbank/core
+    rank: 1000
+    designates_type: true
+    owner: CultureSkin
+    domain_of:
+    - NamedThing
+    range: string
+
+```
+</details></div>

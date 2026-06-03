@@ -6,7 +6,7 @@ standards and ontologies. It serves two purposes:
 1. **Orientation** — helps consumers understand what the schema elements mean in terms of
    well-known vocabularies.
 2. **Pre-staging** — records the `exact_mappings` / `class_uri` annotations added to schema
-   elements in preparation for the hippo-readiness seam (see [DESIGN.md §7](../DESIGN.md)).
+   elements in preparation for the hippo-readiness seam (see [DESIGN.md §7](https://github.com/VA-NCPTSDBB-Bioinformatics/brainbank-hippo-schema/blob/main/DESIGN.md)).
 
 Where an annotation was added to the schema, the **Status** column says *annotated*; where the
 mapping is documented but not yet added (e.g. non-obvious or pending scope decision), it says

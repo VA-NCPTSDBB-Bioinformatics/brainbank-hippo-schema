@@ -1,0 +1,40 @@
+name: schema-ci
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install LinkML
+        run: pip install -r requirements.txt
+
+      - name: Lint modules
+        run: |
+          # --ignore-warnings: fail only on errors. The prototype intentionally carries
+          # warning-level lint findings (human-readable enum values, lowercase OBO prefixes
+          # per DESIGN.md 4.1, and not-yet-written slot descriptions).
+          rc=0
+          for f in schema/*.yaml; do
+            echo "== lint $f =="
+            linkml-lint --ignore-warnings "$f" || rc=1
+          done
+          exit $rc
+
+      - name: Compile merged schema (gen-pydantic smoke test)
+        run: |
+          mkdir -p build
+          gen-pydantic schema/brainbank.yaml > build/brainbank_model.py
+
+      - name: Validate example data
+        run: |
+          linkml-validate -s schema/brainbank.yaml -C BrainBank examples/brainbank-example.yaml

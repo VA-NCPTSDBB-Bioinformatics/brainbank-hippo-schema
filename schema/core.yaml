@@ -1,0 +1,96 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/core
+name: core
+description: Shared base classes, quantities, units, and prefixes for the brain bank schema.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  brainbank: https://w3id.org/VA-NCPTSDBB/brainbank/
+  uberon: http://purl.obolibrary.org/obo/UBERON_
+  mondo: http://purl.obolibrary.org/obo/MONDO_
+  ncbitaxon: http://purl.obolibrary.org/obo/NCBITaxon_
+  cl: http://purl.obolibrary.org/obo/CL_
+  obi: http://purl.obolibrary.org/obo/OBI_
+  ro: http://purl.obolibrary.org/obo/RO_
+default_prefix: core
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+  NamedThing:
+    abstract: true
+    description: >-
+      Local base for all entities. TEMPORARY: stands in for hippo's runtime-provided
+      Entity (see DESIGN.md section 7). When we adopt hippo, classes switch to
+      `is_a: Entity` and id/name/description here are surrendered to the runtime.
+    attributes:
+      id:
+        identifier: true
+        range: uriorcurie
+        description: Technical identifier (UUID/CURIE); becomes hippo-managed later.
+      name:
+        required: true
+      description: {}
+      category:
+        designates_type: true
+        range: string
+        description: >-
+          Names the concrete class of this instance. Lets polymorphic inlined collections
+          (e.g. a `samples` list holding SolidSample/LiquidSample) instantiate the right subclass.
+
+  Association:
+    abstract: true
+    is_a: NamedThing
+    description: Reified, Biolink-style relationship carrying scientific metadata only (never DB audit).
+    attributes:
+      subject:
+        range: NamedThing
+        required: true
+      predicate:
+        range: uriorcurie
+        description: Relation Ontology predicate, e.g. RO:0001000 'derives from'.
+      object:
+        range: NamedThing
+        required: true
+      evidence_type: {}
+      method: {}
+      asserted_on:
+        range: date
+
+  Protocol:
+    is_a: NamedThing
+    description: An SOP or method document (was tissue_db:SOP).
+    attributes:
+      document_location:
+        required: true
+        description: URL, directory, or other location where the SOP can be found.
+      version:
+        required: true
+
+  Quantity:
+    abstract: true
+    attributes:
+      value:
+        range: float
+  Mass:
+    is_a: Quantity
+    attributes:
+      unit:
+        range: MassUnit
+  Volume:
+    is_a: Quantity
+    attributes:
+      unit:
+        range: VolumeUnit
+  Concentration:
+    is_a: Quantity
+    attributes:
+      unit:
+        range: ConcentrationUnit
+
+enums:
+  MassUnit:
+    permissible_values: { ng: {}, ug: {}, mg: {}, g: {}, kg: {} }
+  VolumeUnit:
+    permissible_values: { nl: {}, ul: {}, ml: {}, l: {} }
+  ConcentrationUnit:
+    permissible_values: { ng_ul: {}, ug_ul: {}, mg_ml: {} }

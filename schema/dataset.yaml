@@ -1,0 +1,215 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/dataset
+name: dataset
+description: >-
+  Assay-output / dataset domain. Datasets and assays are modeled with typed subclasses per assay
+  family (transcriptomics, genomics, epigenomics, imaging). Shared technology bases
+  (SequencingAssay / ArrayAssay / SequenceDataset) cut duplication. The sample<->dataset
+  many-to-many is reified through the Assay process node (see DESIGN.md 2.2).
+prefixes:
+  linkml: https://w3id.org/linkml/
+  obi: http://purl.obolibrary.org/obo/OBI_
+default_prefix: dataset
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - tissue
+
+classes:
+  # ---------------- Datasets (the data artifacts) ----------------
+  Dataset:
+    is_a: NamedThing
+    description: >-
+      An assay output. Source samples are reached via produced_by -> Assay -> inputs, not a slot
+      here; a Dataset has no derived_from-sample slot.
+    attributes:
+      dataset_id:
+        required: true
+      assay_type:
+        range: AssayType
+      data_location:
+        range: uriorcurie
+        description: URI/path to the data files.
+      file_format: {}
+      produced_by:
+        range: Assay
+        recommended: true
+        description: The assay run that produced this dataset (and links it to its source samples).
+
+  SequenceDataset:
+    abstract: true
+    is_a: Dataset
+    description: Common fields for sequencing-derived datasets.
+    attributes:
+      genome_build:
+        range: GenomeBuild
+      n_reads:
+        range: integer
+
+  RNASeqDataset:
+    is_a: SequenceDataset
+    description: Transcriptomics (bulk or single-nucleus) expression output.
+    attributes:
+      quantification:
+        range: RNAQuantification
+      gene_model:
+        description: Annotation/gene model used (e.g. GENCODE release).
+
+  GenomeVariantDataset:
+    is_a: SequenceDataset
+    description: WGS / WES variant output.
+    attributes:
+      sequencing_strategy:
+        range: SequencingStrategy
+      variant_caller: {}
+      n_variants:
+        range: integer
+
+  ATACSeqDataset:
+    is_a: SequenceDataset
+    description: Chromatin-accessibility (ATAC-seq) output.
+    attributes:
+      peak_caller: {}
+      n_peaks:
+        range: integer
+
+  ArrayDataset:
+    abstract: true
+    is_a: Dataset
+    description: Common fields for microarray-derived datasets.
+    attributes:
+      array_platform:
+        range: ArrayPlatform
+
+  GenotypingDataset:
+    is_a: ArrayDataset
+    description: SNP-array genotyping output.
+    attributes:
+      genome_build:
+        range: GenomeBuild
+      n_variants:
+        range: integer
+
+  MethylationDataset:
+    is_a: ArrayDataset
+    description: Array-based DNA methylation output.
+    attributes:
+      n_probes:
+        range: integer
+
+  ImageDataset:
+    is_a: Dataset
+    description: Histology / IHC image (e.g. whole-slide image).
+    attributes:
+      image_format:
+        range: ImageFormat
+      stain:
+        range: StainType
+      magnification:
+        range: float
+      pixel_size_um:
+        range: float
+
+  # ---------------- Assays (the process nodes) ----------------
+  Assay:
+    is_a: NamedThing
+    description: >-
+      An assay run: the process node that consumes input Samples and produces Datasets. Reifies the
+      many-to-many sample<->dataset relationship and carries its production metadata.
+    attributes:
+      assay_type:
+        range: AssayType
+      inputs:
+        range: Sample
+        multivalued: true
+        description: Source samples consumed by this assay.
+      protocol:
+        range: Protocol
+      performed_on:
+        range: date
+
+  SequencingAssay:
+    abstract: true
+    is_a: Assay
+    attributes:
+      platform:
+        range: SequencingPlatform
+      read_length:
+        range: integer
+      paired_end:
+        range: boolean
+  RNASeqAssay:
+    is_a: SequencingAssay
+  GenomeSequencingAssay:
+    is_a: SequencingAssay
+    attributes:
+      sequencing_strategy:
+        range: SequencingStrategy
+  ATACSeqAssay:
+    is_a: SequencingAssay
+
+  ArrayAssay:
+    abstract: true
+    is_a: Assay
+    attributes:
+      array_platform:
+        range: ArrayPlatform
+  GenotypingAssay:
+    is_a: ArrayAssay
+  MethylationArrayAssay:
+    is_a: ArrayAssay
+
+  ImagingAssay:
+    is_a: Assay
+    attributes:
+      stain:
+        range: StainType
+      magnification:
+        range: float
+      scanner: {}
+
+enums:
+  AssayType:
+    reachable_from:
+      source_ontology: obo:obi
+      source_nodes:
+        - OBI:0000070      # assay
+  SequencingPlatform:
+    permissible_values:
+      Illumina: {}
+      PacBio: {}
+      Oxford Nanopore: {}
+      BGI: {}
+      Other: {}
+  ArrayPlatform:
+    permissible_values:
+      Illumina Infinium EPIC: {}
+      Illumina 450K: {}
+      Affymetrix SNP 6.0: {}
+      Other: {}
+  GenomeBuild:
+    permissible_values:
+      GRCh38: {}
+      GRCh37: {}
+      T2T-CHM13: {}
+      Other: {}
+  RNAQuantification:
+    permissible_values:
+      raw_counts: {}
+      TPM: {}
+      FPKM: {}
+      CPM: {}
+  SequencingStrategy:
+    permissible_values:
+      WGS: {}
+      WES: {}
+      targeted: {}
+  ImageFormat:
+    permissible_values:
+      SVS: {}
+      OME-TIFF: {}
+      TIFF: {}
+      NDPI: {}
+      DICOM: {}
+      JPEG: {}
+      PNG: {}

@@ -1,0 +1,49 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/person
+name: person
+description: People domain. Person is the base human entity; Donor is a deceased tissue donor.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ncbitaxon: http://purl.obolibrary.org/obo/NCBITaxon_
+default_prefix: person
+default_range: string
+imports:
+  - linkml:types
+  - core
+
+classes:
+  Person:
+    is_a: NamedThing
+    description: A human individual (was tissue_db:Case / draft "Subject").
+    attributes:
+      person_id:
+        required: true
+        description: Business identifier (human-facing person ID). Gets hippo_index later.
+      species:
+        range: Species
+        description: >-
+          Species of the individual. Defaults conceptually to Homo sapiens (NCBITaxon:9606);
+          an ifabsent default is omitted because Species is a dynamic (reachable_from) enum
+          with no static permissible value for gen-pydantic to materialize.
+      sex: {}
+      cohort:
+        range: Cohort
+        multivalued: true
+
+  Donor:
+    is_a: Person
+    description: A deceased individual who donated tissue.
+    attributes:
+      age_at_death:
+        range: float
+      post_mortem_interval_hours:
+        range: float
+
+  Cohort:
+    is_a: NamedThing
+
+enums:
+  Species:
+    reachable_from:
+      source_ontology: obo:ncbitaxon
+      source_nodes:
+        - NCBITaxon:9606   # Homo sapiens (default; widen if non-human added)

@@ -1,0 +1,43 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/anatomy
+name: anatomy
+description: >-
+  Anatomical vocabulary. AnatomicalSite is a dynamic enum bound to Uberon; AnatomicalStructure
+  is a thin curated term class used when local metadata or an FMA cross-reference is needed
+  (e.g. when Uberon is not specific enough).
+prefixes:
+  linkml: https://w3id.org/linkml/
+  uberon: http://purl.obolibrary.org/obo/UBERON_
+  fma: http://purl.org/sig/ont/fma/fma
+default_prefix: anatomy
+default_range: string
+imports:
+  - linkml:types
+  - core
+
+classes:
+  AnatomicalStructure:
+    is_a: NamedThing
+    description: >-
+      A curated anatomical term. `name` is the preferred label; `ontology_term` binds to Uberon;
+      `fma_xref` records an FMA cross-reference when Uberon lacks a specific-enough term.
+    attributes:
+      ontology_term:
+        range: AnatomicalSite
+        description: The bound Uberon term.
+      fma_xref:
+        range: uriorcurie
+        multivalued: true
+        description: FMA cross-reference(s), used when Uberon is not specific enough.
+      part_of:
+        range: AnatomicalStructure
+
+enums:
+  AnatomicalSite:
+    description: Anatomical structures from Uberon.
+    reachable_from:
+      source_ontology: obo:uberon
+      source_nodes:
+        - UBERON:0000465   # material anatomical entity (confirm root with ontologist)
+      relationship_types:
+        - rdfs:subClassOf
+        - BFO:0000050      # part_of

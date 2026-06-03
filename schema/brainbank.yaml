@@ -1,0 +1,79 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/brainbank
+name: brainbank
+description: >-
+  Tree-root container for ingest AND the lab extension layer. For the prototype these two
+  roles live together; under hippo the extension layer becomes a separate user-schema repo
+  while the container stays.
+prefixes:
+  linkml: https://w3id.org/linkml/
+default_prefix: brainbank
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - anatomy
+  - person
+  - tissue
+  - dataset
+  - pathology
+
+classes:
+  BrainBank:
+    tree_root: true
+    attributes:
+      donors:
+        range: Donor
+        multivalued: true
+        inlined_as_list: true
+      samples:
+        range: Sample
+        multivalued: true
+        inlined_as_list: true
+      processes:
+        range: Process
+        multivalued: true
+        inlined_as_list: true
+      containers:
+        range: Container
+        multivalued: true
+        inlined_as_list: true
+      locations:
+        range: Location
+        multivalued: true
+        inlined_as_list: true
+      cohorts:
+        range: Cohort
+        multivalued: true
+        inlined_as_list: true
+      anatomical_structures:
+        range: AnatomicalStructure
+        multivalued: true
+        inlined_as_list: true
+        description: Curated anatomy terms referenced by samples (reference data for now).
+      datasets:
+        range: Dataset
+        multivalued: true
+        inlined_as_list: true
+      assays:
+        range: Assay
+        multivalued: true
+        inlined_as_list: true
+      assessments:
+        range: Assessment
+        multivalued: true
+        inlined_as_list: true
+
+  # --- lab extension layer: brain-bank-specific processes (ported from bank_brain_workflow) ---
+  # Re-home each Transaction subclass as `is_a: Process`, e.g.:
+  #
+  # SliceTissueToSlide:
+  #   is_a: Process
+  #   attributes:
+  #     stain:
+  #       range: StainType
+  #
+  # DissectFrozenBrain:
+  #   is_a: Process
+  #   slot_usage:
+  #     inputs:  { range: Sample, required: true }
+  #     outputs: { range: Sample, required: true }

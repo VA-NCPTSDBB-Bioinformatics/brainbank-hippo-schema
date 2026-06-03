@@ -12,6 +12,7 @@ description: >-
   snakemake rule) are deferred behind the self-referential parent_analysis seam.
 prefixes:
   linkml: https://w3id.org/linkml/
+  bioschemas: https://bioschemas.org/
 default_prefix: analysis
 default_range: string
 imports:
@@ -22,6 +23,8 @@ imports:
 classes:
   WorkflowDefinition:
     is_a: Protocol
+    exact_mappings:
+      - bioschemas:ComputationalWorkflow
     description: >-
       A reusable, versioned executable pipeline DEFINITION (e.g. nf-core/rnaseq 3.14.0) — the
       recipe, independent of any single execution. is_a Protocol: the inherited (required)
@@ -76,6 +79,8 @@ classes:
 
   WorkflowRun:
     is_a: Analysis
+    exact_mappings:
+      - bioschemas:ComputationalWorkflow
     description: >-
       A single execution of a WorkflowDefinition by a workflow engine (e.g. one nf-core/rnaseq
       run). The run's identity-of-recipe lives on the linked WorkflowDefinition (via the inherited

@@ -11,6 +11,7 @@ prefixes:
   obi: http://purl.obolibrary.org/obo/OBI_
   ro: http://purl.obolibrary.org/obo/RO_
   UO: http://purl.obolibrary.org/obo/UO_
+  prov: http://www.w3.org/ns/prov#
 default_prefix: core
 default_range: string
 imports:
@@ -78,6 +79,8 @@ classes:
   Activity:
     abstract: true
     is_a: NamedThing
+    exact_mappings:
+      - prov:Activity
     description: >-
       A PROV-style activity: something that occurs over time and acts on entities — specimen
       processing (tissue.Process), data acquisition (dataset.Assay), or computation

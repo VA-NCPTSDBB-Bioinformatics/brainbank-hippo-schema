@@ -9,6 +9,7 @@ prefixes:
   linkml: https://w3id.org/linkml/
   obi: http://purl.obolibrary.org/obo/OBI_
   EDAM: http://edamontology.org/
+  prov: http://www.w3.org/ns/prov#
 default_prefix: dataset
 default_range: string
 imports:
@@ -20,6 +21,8 @@ classes:
   # ---------------- Datasets (the data artifacts) ----------------
   Dataset:
     is_a: NamedThing
+    exact_mappings:
+      - prov:Entity
     description: >-
       A data artifact (scientific unit). Its physical bytes live in File/FileSet objects;
       its provenance is produced_by -> Activity (an Assay for raw data, or an Analysis/Workflow
@@ -145,6 +148,8 @@ classes:
   # ---------------- Files (the physical layer under a Dataset) ----------------
   File:
     is_a: NamedThing
+    exact_mappings:
+      - prov:Entity
     description: A single physical data file. The atomic unit beneath a Dataset.
     attributes:
       uri:
@@ -167,6 +172,8 @@ classes:
 
   FileSet:
     is_a: NamedThing
+    exact_mappings:
+      - prov:Entity
     description: >-
       A named bundle of files that belong together (e.g. R1/R2 FASTQs, a BAM + its index,
       a directory of per-sample VCFs). Optional grouping layer between Dataset and File.
@@ -183,6 +190,8 @@ classes:
   # ---------------- Assays (the process nodes) ----------------
   Assay:
     is_a: Activity
+    exact_mappings:
+      - OBI:0000070
     description: >-
       An assay run: the process node that consumes input Samples and produces Datasets. Reifies the
       many-to-many sample<->dataset relationship and carries its production metadata.

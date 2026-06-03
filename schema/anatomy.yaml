@@ -1,5 +1,6 @@
 id: https://w3id.org/VA-NCPTSDBB/brainbank/anatomy
 name: anatomy
+version: 0.1.0
 description: >-
   Anatomical vocabulary. AnatomicalSite is a dynamic enum bound to Uberon; AnatomicalStructure
   is a thin curated term class used when local metadata or an FMA cross-reference is needed

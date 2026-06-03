@@ -1,5 +1,6 @@
 id: https://w3id.org/VA-NCPTSDBB/brainbank/person
 name: person
+version: 0.1.0
 description: People domain. Person is the base human entity; Donor is a deceased tissue donor.
 prefixes:
   linkml: https://w3id.org/linkml/

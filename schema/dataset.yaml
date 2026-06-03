@@ -1,5 +1,6 @@
 id: https://w3id.org/VA-NCPTSDBB/brainbank/dataset
 name: dataset
+version: 0.1.0
 description: >-
   Assay-output / dataset domain. Datasets and assays are modeled with typed subclasses per assay
   family (transcriptomics, genomics, epigenomics, imaging). Shared technology bases

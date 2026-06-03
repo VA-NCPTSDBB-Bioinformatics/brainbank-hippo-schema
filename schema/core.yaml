@@ -1,5 +1,6 @@
 id: https://w3id.org/VA-NCPTSDBB/brainbank/core
 name: core
+version: 0.1.0
 description: Shared base classes, quantities, units, and prefixes for the brain bank schema.
 prefixes:
   linkml: https://w3id.org/linkml/

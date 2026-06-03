@@ -1,5 +1,6 @@
 id: https://w3id.org/VA-NCPTSDBB/brainbank/pathology
 name: pathology
+version: 0.1.0
 description: >-
   PROVISIONAL / FUTURE WORK. Pathology scope is not yet defined (which staging scales and measures
   the bank needs to store is TBD). This module is a minimal placeholder that records the agreed

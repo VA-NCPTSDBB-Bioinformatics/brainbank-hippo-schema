@@ -51,6 +51,13 @@ make validate    # validate examples against the merged schema
 make pydantic     # generate a Pydantic SDK (smoke test)
 ```
 
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for schema conventions, import rules, linting guidance,
+and how to add a new module or example.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for the version history.
+
 ## License / governance
 
 VA-NCPTSDBB-Bioinformatics. Base modules are extended via `is_a`/`slot_usage`, never edited in place

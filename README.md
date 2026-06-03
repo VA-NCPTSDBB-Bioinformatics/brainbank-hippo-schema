@@ -26,18 +26,19 @@ A clean dependency DAG (lower layers never reference upper layers):
 ```
 core ──┬── anatomy ──┐
        └── person ───┤
-                tissue ──┬── dataset
+                tissue ──┬── dataset ──── analysis
                          └── pathology (provisional)
                               brainbank   (tree-root container + lab extension layer)
 ```
 
 | Module | Purpose |
 |---|---|
-| `core` | `NamedThing` base, `Association` base, `Protocol`, quantities/units |
+| `core` | `NamedThing` base, `Association` base, `Activity` base (PROV-style process), `Protocol`, quantities/units |
 | `anatomy` | `AnatomicalStructure` term class + Uberon-bound `AnatomicalSite` enum (FMA xref) |
 | `person` | `Person` / `Donor`, `Cohort`, `Species` |
-| `tissue` | `Sample`/`SolidSample`/`LiquidSample`, `Container`, `Location`, `Process` |
-| `dataset` | `Dataset`/`Assay` + typed subclasses per assay family (RNA-seq, genome, ATAC, genotyping, methylation, imaging) |
+| `tissue` | `Sample`/`SolidSample`/`LiquidSample`, `Container`, `Location`, `Process` (`is_a Activity`) |
+| `dataset` | `Dataset`/`Assay` (`is_a Activity`) + typed subclasses per assay family; `File`/`FileSet` physical layer |
+| `analysis` | computational provenance — `Analysis` (`is_a Activity`) and `Workflow` (`is_a Analysis`: nextflow/snakemake/… runs). See DESIGN.md §10 |
 | `pathology` | **provisional / future work** — generic `Measurement` + `Diagnosis` placeholder |
 | `brainbank` | `BrainBank` tree-root ingest container + lab extension layer: the ported brain-bank workflow (`BankFreshBrain`, `DissectFrozenBrain`, `SliceTissueToSlide`, … `is_a Process`) and its specimen subclasses (`CNSSection`, `Dura`, `CSF`, … `is_a Sample`). See DESIGN.md §9 |
 

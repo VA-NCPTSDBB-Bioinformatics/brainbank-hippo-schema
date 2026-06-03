@@ -66,6 +66,23 @@ classes:
       version:
         required: true
 
+  Activity:
+    abstract: true
+    is_a: NamedThing
+    description: >-
+      A PROV-style activity: something that occurs over time and acts on entities — specimen
+      processing (tissue.Process), data acquisition (dataset.Assay), or computation
+      (analysis.Analysis). Holds only what every activity shares; typed inputs/outputs live on
+      the subclasses because their ranges differ (Sample vs Dataset).
+    attributes:
+      protocol:
+        range: Protocol
+        recommended: true
+        description: The SOP/method this activity followed.
+      performed_on:
+        range: date
+        description: Date the activity was carried out.
+
   Quantity:
     abstract: true
     attributes:

@@ -486,3 +486,59 @@ values to strings before JSON-Schema validation **when the containing slot is po
 fail with "not valid under any of the given schemas". The schema fully supports `Process.performed_on`;
 the workflow example simply leaves it unpopulated so validation/CI stay green. Revisit if/when the
 validator is fixed upstream.
+
+---
+
+## 10. Computational provenance — File/FileSet + the `analysis` module
+
+The `dataset` module modeled an assay output as a single opaque blob (`data_location` + a
+`file_format` string) and stopped provenance at the wet-lab `Assay`. This phase adds the physical
+file layer and a computational arm, so derived data (nextflow/snakemake outputs) is first-class.
+
+**Shared activity base.** A new abstract **`core.Activity`** (a PROV-style *activity*) holds what
+every process shares — `protocol`, `performed_on`. `tissue.Process` and `dataset.Assay` are
+re-parented onto it (`is_a: Activity`), as is the new `analysis.Analysis`. Typed `inputs`/`outputs`
+stay on the subclasses because their ranges differ (Sample vs Dataset). The payoff:
+**`Dataset.produced_by` widens from `Assay` to `Activity`**, so a dataset can be produced by a
+wet-lab assay (raw) *or* a computational analysis (derived) — one walkable provenance DAG:
+
+```
+Donor → Sample → Assay → Dataset → Analysis/Workflow → Dataset → …
+```
+
+This is the same reify-through-the-process-node rule (§2.2) applied one tier up: the
+dataset↔dataset M:N is carried by the analysis node, not an association class.
+
+**Physical layer (`dataset`).** `File` (uri, file_format, media_type, size_bytes, checksum +
+algorithm) is the atomic unit; `FileSet` is a named, role-tagged bundle (paired reads, alignment +
+index, …). `Dataset` gains `files` / `file_sets`; `data_location` survives as an optional
+convenience pointer to the dataset root; the old per-dataset `file_format` slot is dropped (it now
+lives per `File`). New enums: `FileFormat`, `FileRole`, `ChecksumAlgorithm`.
+
+**Computational layer (new `analysis` module, imports `core` + `dataset`).**
+- **`Analysis is_a Activity`** — a computational run: `input_datasets`, `output_datasets`,
+  `parameters` (a small `Parameter {name, value}` class), `started_at`/`ended_at` (datetime),
+  `status`, `compute_environment`, and a self-referential `parent_analysis` **seam** for future
+  intra-run (nextflow process / snakemake rule) provenance — deferred for now.
+- **`Workflow is_a Analysis`** — an engine-driven run (`engine` ∈ nextflow/snakemake/CWL/WDL/…,
+  `repository_url`, `pipeline_version`, `engine_version`, `container_image`). Tracking a
+  nextflow/snakemake pipeline at the right level = one `Workflow` node per run, whose `protocol`
+  (inherited) and identity fields say what ran. **Decision:** `Workflow` is a *subclass* of
+  `Analysis` rather than a separate `Protocol`-derived definition referenced by slot. Trade-off:
+  pipeline identity (repo/version) repeats per run instead of living in one reusable definition —
+  the deliberate consequence of subclass-over-slot. A reusable `WorkflowDefinition is_a Protocol`
+  can be added later without disturbing consumers if that repetition becomes a problem.
+
+`brainbank` tree_root gains `files`, `file_sets`, and `analyses` (the latter holds `Workflow` runs
+too, since `Workflow is_a Analysis`). `examples/brainbank-analysis-example.yaml` runs the chain end
+to end: assay → raw RNA-seq `Dataset` (FASTQ `FileSet`) → nf-core/rnaseq `Workflow` → derived
+gene-counts `Dataset`.
+
+**Prior-art alignment (future, hippo seam §7):** `File`/`Workflow`/`Analysis` are shaped to map
+onto GA4GH DRS (files), W3C PROV-O (Entity/Activity/Agent), and the Workflow-Run RO-Crate profile —
+so `exact_mappings`/`class_uri` annotations can later make instances exportable as RO-Crate.
+
+**Same date quirk as §8.** `Analysis.started_at`/`ended_at` (datetime) are left unpopulated in the
+example: linkml-validate 1.11.x mis-serializes date/datetime inside a polymorphic (`anyOf`)
+collection (here `analyses`), which cascades into a misleading `category` error. The schema fully
+supports them.

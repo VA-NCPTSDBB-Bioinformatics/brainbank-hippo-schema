@@ -15,6 +15,7 @@ imports:
   - person
   - tissue
   - dataset
+  - analysis
   - pathology
 
 classes:
@@ -58,6 +59,19 @@ classes:
         range: Assay
         multivalued: true
         inlined_as_list: true
+      files:
+        range: File
+        multivalued: true
+        inlined_as_list: true
+      file_sets:
+        range: FileSet
+        multivalued: true
+        inlined_as_list: true
+      analyses:
+        range: Analysis
+        multivalued: true
+        inlined_as_list: true
+        description: Computational analyses, including engine-driven Workflow runs.
       assessments:
         range: Assessment
         multivalued: true

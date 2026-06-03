@@ -1,0 +1,143 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/tissue
+name: tissue
+description: Physical specimen domain, logistics, and the generic processing-event backbone.
+prefixes:
+  linkml: https://w3id.org/linkml/
+default_prefix: tissue
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - person
+  - anatomy
+
+classes:
+  Sample:
+    abstract: true
+    is_a: NamedThing
+    attributes:
+      sample_id:
+        required: true
+        description: Business identifier.
+      donor:
+        range: Donor
+        required: true
+        description: The deceased donor this sample was taken from.
+      anatomical_site:
+        range: AnatomicalStructure
+        multivalued: true
+      container:
+        range: Container
+      derived_from:
+        range: Sample
+        description: Parent specimen this sample was produced from.
+      produced_by:
+        range: Process
+        description: The processing event that created this sample.
+
+  SolidSample:
+    is_a: Sample
+    attributes:
+      format:
+        range: SolidSampleFormat
+        required: true
+      mass:
+        range: Mass
+    slot_usage:
+      derived_from:
+        range: SolidSample
+
+  LiquidSample:
+    is_a: Sample
+    attributes:
+      format:
+        range: LiquidSampleFormat
+      volume:
+        range: Volume
+    slot_usage:
+      derived_from:
+        range: LiquidSample
+
+  Container:
+    is_a: NamedThing
+    attributes:
+      type:
+        range: ContainerType
+      location:
+        range: Location
+      parent:
+        range: Container
+
+  Location:
+    is_a: NamedThing
+    attributes:
+      location_type:
+        range: LocationType
+      parent_location:
+        range: Location
+
+  Process:
+    is_a: NamedThing
+    description: >-
+      A specimen-processing/transformation event (generalizes tissue_db:Transaction).
+      Concrete brain-bank workflows subclass this in the brainbank extension layer.
+    attributes:
+      inputs:
+        range: Sample
+        multivalued: true
+      outputs:
+        range: Sample
+        multivalued: true
+      protocol:
+        range: Protocol
+        recommended: true
+      performed_on:
+        range: date
+
+enums:
+  SolidSampleFormat:
+    permissible_values:
+      Slab: {}
+      Coronal slab: {}
+      Block: {}
+      Cassette: {}
+      Section: {}
+      Pellet: {}
+      Roll: {}
+      Hemisphere: {}
+      Whole brain: {}
+      Remainder: {}
+  LiquidSampleFormat:
+    permissible_values:
+      Aliquot: {}
+      Remainder: {}
+  ContainerType:
+    permissible_values:
+      Box: {}
+      Falcon Tube: {}
+      Cryovial: {}
+      Eppendorff: {}
+      Conical Tube 15ml: {}
+      Conical Tube 50ml: {}
+      Cassette: {}
+      Slide Box: {}
+      Freezer: {}
+      Refrigerator: {}
+      Shelf: {}
+      Rack: {}
+      Drawer: {}
+  LocationType:
+    permissible_values:
+      Site: {}
+      Building: {}
+      Room: {}
+  StainType:
+    permissible_values:
+      NeuN: {}
+      Iba1: {}
+      GFAP: {}
+  CellType:
+    reachable_from:
+      source_ontology: obo:cl
+      source_nodes:
+        - CL:0000000

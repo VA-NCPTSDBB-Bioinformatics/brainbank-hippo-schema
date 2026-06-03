@@ -1,0 +1,74 @@
+# Minimal valid BrainBank instance (tree_root = brainbank:BrainBank).
+# Demonstrates the cross-domain chain: Donor -> Sample -> Assay -> Dataset.
+# Validate with:  linkml-validate -s schema/brainbank.yaml -C BrainBank examples/brainbank-example.yaml
+donors:
+  - id: DNR-001
+    name: Donor 001
+    category: Donor
+    person_id: BB-0001
+    species: NCBITaxon:9606
+    sex: male
+    age_at_death: 72.0
+    post_mortem_interval_hours: 18.5
+    cohort:
+      - COH-PTSD
+
+cohorts:
+  - id: COH-PTSD
+    name: PTSD cohort
+    category: Cohort
+
+anatomical_structures:
+  - id: ANAT-HIPP
+    name: hippocampus
+    category: AnatomicalStructure
+    ontology_term: UBERON:0002310   # hippocampal formation (example; confirm exact term)
+
+locations:
+  - id: LOC-FRZ-1
+    name: Freezer 1
+    category: Location
+    location_type: Room
+
+containers:
+  - id: BOX-001
+    name: Cryobox 001
+    category: Container
+    type: Cryovial
+    location: LOC-FRZ-1
+
+samples:
+  - id: SMP-001
+    name: Frozen hippocampus block
+    category: SolidSample
+    sample_id: BB-0001-HIPP-01
+    donor: DNR-001
+    anatomical_site:
+      - ANAT-HIPP
+    container: BOX-001
+    format: Block
+    mass:
+      value: 1.2
+      unit: g
+
+assays:
+  - id: ASY-001
+    name: snRNA-seq of BB-0001 hippocampus
+    category: RNASeqAssay
+    assay_type: OBI:0000070
+    inputs:
+      - SMP-001
+    platform: Illumina
+    read_length: 150
+    paired_end: true
+
+datasets:
+  - id: DS-001
+    name: BB-0001 hippocampus snRNA-seq counts
+    category: RNASeqDataset
+    dataset_id: BB-0001-HIPP-RNA-01
+    assay_type: OBI:0000070
+    produced_by: ASY-001
+    data_location: s3://example-bucket/BB-0001/hipp/snRNAseq/
+    genome_build: GRCh38
+    quantification: raw_counts

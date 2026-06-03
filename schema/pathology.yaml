@@ -1,0 +1,64 @@
+id: https://w3id.org/VA-NCPTSDBB/brainbank/pathology
+name: pathology
+description: >-
+  PROVISIONAL / FUTURE WORK. Pathology scope is not yet defined (which staging scales and measures
+  the bank needs to store is TBD). This module is a minimal placeholder that records the agreed
+  direction only: a generic Assessment/Measurement with a MeasureType enum (rather than typed
+  subclasses per scale). Do not treat the classes/enums here as final.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  mondo: http://purl.obolibrary.org/obo/MONDO_
+default_prefix: pathology
+default_range: string
+imports:
+  - linkml:types
+  - core
+  - person
+  - tissue
+
+classes:
+  Assessment:
+    abstract: true
+    is_a: NamedThing
+    description: A pathology assessment of a person or sample (a reified observation). PROVISIONAL.
+    attributes:
+      person:
+        range: Person
+      sample:
+        range: Sample
+      method: {}
+      asserted_on:
+        range: date
+
+  Measurement:
+    is_a: Assessment
+    description: >-
+      A generic neuropathology measure. PROVISIONAL. When scope is known, `measure_name` is intended
+      to be constrained by the MeasureType enum below (populated then), with staged scales recorded
+      as values rather than as typed subclasses.
+    attributes:
+      measure_name:
+        range: MeasureType
+        required: true
+      value_numeric:
+        range: float
+      value_text: {}
+
+  Diagnosis:
+    is_a: Assessment
+    description: A disease diagnosis. PROVISIONAL.
+    attributes:
+      disease:
+        range: Disease
+        required: true
+
+enums:
+  Disease:
+    reachable_from:
+      source_ontology: obo:mondo
+      source_nodes:
+        - MONDO:0000001
+  MeasureType:
+    description: >-
+      STUB — to be populated once pathology scope is defined (e.g. Braak NFT stage, Thal phase,
+      CERAD score, McKee CTE stage, LATE-NC). Intentionally left without permissible values for now.

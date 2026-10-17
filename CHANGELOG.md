@@ -16,6 +16,26 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Read-only reverse (`inverse:`) slots, so Mosaic can answer "what points at this?" server-side
+  (Mosaic ADR-0011: filterable, countable, displayable — derived from the forward slot, never
+  stored or written, so existing instance documents and databases are unaffected):
+  - `tissue.Container.child_containers` (reverse of `Container.parent`)
+  - `tissue.Location.child_locations` (reverse of `Location.parent_location`)
+  - `tissue.Location.containers` (reverse of `Container.location`)
+  - `anatomy.AnatomicalStructure.parts` (reverse of `AnatomicalStructure.part_of`)
+  - `analysis.WorkflowDefinition.runs` (reverse of `WorkflowRun.protocol`)
+  - `dataset.<X>Assay.datasets` on each concrete assay, ranged on its own dataset type
+    (`RNASeqAssay` → `RNASeqDataset`, `GenomeSequencingAssay` → `GenomeVariantDataset`,
+    `ATACSeqAssay` → `ATACSeqDataset`, `GenotypingAssay` → `GenotypingDataset`,
+    `MethylationArrayAssay` → `MethylationDataset`, `ImagingAssay` → `ImageDataset`)
+    (reverse of `Dataset.produced_by`). Leaf ranges on purpose: Mosaic resolves a reverse
+    slot against the named class's own table only, so a generic `Assay.datasets` would miss
+    every subclass dataset.
+- Only same-module reverses are declared. A reverse that crosses modules (e.g. `Donor` →
+  samples, `Person`/`Sample` → diagnoses) would make a lower layer reference an upper one,
+  breaking the module DAG (DESIGN.md §1, §2.2); those wait on Mosaic accepting a reverse declared
+  from the forward side.
+
 - `docs/mappings.md` — external-standard mappings table (Uberon, OBI, PROV-O, DRS, RO-Crate, Bioschemas).
 - `exact_mappings:` annotations on `core.Activity`, `dataset.Dataset/File/FileSet`, `dataset.Assay`,
   `analysis.WorkflowDefinition`, `analysis.WorkflowRun`.

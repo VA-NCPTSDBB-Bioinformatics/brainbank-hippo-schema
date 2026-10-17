@@ -38,6 +38,13 @@ classes:
         description: Workflow engine the pipeline is written for.
       container_image:
         description: Default/declared container image or digest for the pipeline, if any.
+      runs:
+        range: WorkflowRun
+        multivalued: true
+        inverse: protocol
+        description: >-
+          Executions of this workflow definition. Read-only reverse of `WorkflowRun.protocol`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
 
   Analysis:
     is_a: Activity

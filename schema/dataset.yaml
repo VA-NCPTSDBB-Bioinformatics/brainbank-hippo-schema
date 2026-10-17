@@ -223,6 +223,14 @@ classes:
   RNASeqAssay:
     is_a: SequencingAssay
     description: An RNA sequencing assay (bulk or single-nucleus RNA-seq).
+    attributes:
+      datasets:
+        range: RNASeqDataset
+        multivalued: true
+        inverse: produced_by
+        description: >-
+          RNASeqDatasets produced by this assay. Read-only reverse of `RNASeqDataset.produced_by`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
   GenomeSequencingAssay:
     is_a: SequencingAssay
     description: A whole-genome or whole-exome DNA sequencing assay.
@@ -230,9 +238,24 @@ classes:
       sequencing_strategy:
         range: SequencingStrategy
         description: Sequencing strategy used (WGS, WES, or targeted panel).
+      datasets:
+        range: GenomeVariantDataset
+        multivalued: true
+        inverse: produced_by
+        description: >-
+          GenomeVariantDatasets produced by this assay. Read-only reverse of `GenomeVariantDataset.produced_by`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
   ATACSeqAssay:
     is_a: SequencingAssay
     description: An ATAC-seq chromatin-accessibility assay.
+    attributes:
+      datasets:
+        range: ATACSeqDataset
+        multivalued: true
+        inverse: produced_by
+        description: >-
+          ATACSeqDatasets produced by this assay. Read-only reverse of `ATACSeqDataset.produced_by`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
 
   ArrayAssay:
     abstract: true
@@ -245,9 +268,25 @@ classes:
   GenotypingAssay:
     is_a: ArrayAssay
     description: A SNP-array genotyping assay.
+    attributes:
+      datasets:
+        range: GenotypingDataset
+        multivalued: true
+        inverse: produced_by
+        description: >-
+          GenotypingDatasets produced by this assay. Read-only reverse of `GenotypingDataset.produced_by`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
   MethylationArrayAssay:
     is_a: ArrayAssay
     description: An array-based DNA methylation assay (e.g. Illumina EPIC or 450K).
+    attributes:
+      datasets:
+        range: MethylationDataset
+        multivalued: true
+        inverse: produced_by
+        description: >-
+          MethylationDatasets produced by this assay. Read-only reverse of `MethylationDataset.produced_by`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
 
   ImagingAssay:
     is_a: Assay
@@ -261,6 +300,13 @@ classes:
         description: Objective magnification used during scanning.
       scanner:
         description: Scanner model used for slide digitization (e.g. Aperio GT450).
+      datasets:
+        range: ImageDataset
+        multivalued: true
+        inverse: produced_by
+        description: >-
+          ImageDatasets produced by this assay. Read-only reverse of `ImageDataset.produced_by`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
 
 enums:
   AssayType:

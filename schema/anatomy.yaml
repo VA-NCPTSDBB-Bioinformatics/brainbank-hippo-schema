@@ -32,6 +32,13 @@ classes:
       part_of:
         range: AnatomicalStructure
         description: The parent anatomical structure this structure is a part of (mereological relation).
+      parts:
+        range: AnatomicalStructure
+        multivalued: true
+        inverse: part_of
+        description: >-
+          Anatomical structures that are directly part of this one. Read-only reverse of `AnatomicalStructure.part_of`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
 
 enums:
   AnatomicalSite:

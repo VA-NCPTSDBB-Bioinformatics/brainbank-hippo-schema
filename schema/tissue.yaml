@@ -84,6 +84,13 @@ classes:
       parent:
         range: Container
         description: Parent container this container is nested within (e.g. box within freezer).
+      child_containers:
+        range: Container
+        multivalued: true
+        inverse: parent
+        description: >-
+          Containers nested directly within this one (e.g. boxes in a freezer). Read-only reverse of `Container.parent`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
 
   Location:
     is_a: NamedThing
@@ -95,6 +102,20 @@ classes:
       parent_location:
         range: Location
         description: The parent location this location belongs to (e.g. room within building).
+      child_locations:
+        range: Location
+        multivalued: true
+        inverse: parent_location
+        description: >-
+          Locations directly within this one (e.g. rooms in a building). Read-only reverse of `Location.parent_location`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
+      containers:
+        range: Container
+        multivalued: true
+        inverse: location
+        description: >-
+          Containers stored at this location. Read-only reverse of `Container.location`: derived from that slot, never
+          stored or written (Mosaic ADR-0011).
 
   Process:
     is_a: Activity

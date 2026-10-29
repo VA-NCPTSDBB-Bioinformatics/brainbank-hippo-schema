@@ -132,6 +132,47 @@ and similar date slots are therefore omitted from example files (see DESIGN.md Â
 
 ---
 
+## Discovery cases
+
+`evals/discovery.yaml` is the brain-bank **discovery case set**: researcher-phrased
+questions ("how long after death was tissue collected from each donor?") paired with
+the slot a planner must name to answer them (`post_mortem_interval_hours`). It is
+graded by [Reel](https://github.com/datahelix-platform/reel)'s evaluation harness
+against a served copy of this schema, and it lives here because a case set describes
+one schema and should version with it. Downstream recipes (datahelix's `demo-reel`)
+fetch it at the schema ref they bake rather than keeping a copy.
+
+To run it, serve this schema through Mosaic (any deployment that exposes the MCP
+endpoint, e.g. the datahelix `demo` or `demo-reel` recipe), install Reel, then from
+the repo root:
+
+```bash
+MOSAIC_MCP_URL=<served copy of this schema, e.g. http://localhost:8099/mcp> \
+REEL_EVAL_CASES=evals/discovery.yaml \
+    python -m reel.evals.run
+```
+
+The runner samples each case **three times** (its default; `-n` to change) because
+model behaviour is a distribution and a single run cannot tell a broken prompt from
+an unlucky one. **Every run of every case must pass.** A case that passes 2 of 3 is a
+coin flip, and the exit status counts it as unreliable. Each run spends model calls,
+so this is not part of `make all` or CI; run it when you touch a slot description, an
+enum, or a case.
+
+Rules for the cases themselves (carried from `mosaic-demo-small/evals/discovery.yaml`):
+
+- **Assert slots named, never prose or row counts.** `expect_slots` is a subset check:
+  naming a related slot alongside the expected one is a better answer, not a failure.
+  Use `expect_none: true` for a topic the schema genuinely does not model.
+- **Phrase every utterance in a researcher's vocabulary, not in field names.** The
+  point is to test that the slot resolves through its `description:` and enum values,
+  so a question that quotes the slot name tests nothing.
+- The file header pins the schema ref the cases were last verified against. When you
+  re-run the set against a newer ref and every case passes every sample, bump that ref
+  in the same PR. A schema change that lands without a re-run leaves the ref alone.
+
+---
+
 ## Versioning
 
 This schema uses [Semantic Versioning](https://semver.org/):

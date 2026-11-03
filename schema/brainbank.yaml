@@ -491,6 +491,7 @@ classes:
     attributes:
       new_fixed_samples:
         range: CNSSection
+        multivalued: true
         required: true
         description: CNS sections produced by this dissection.
     slot_usage:

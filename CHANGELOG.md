@@ -14,6 +14,26 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Facts that were written in both directions are now stored once, on the forward slot, with the
+  other side a read-only reverse (Mosaic ADR-0011; works on Mosaic >= 0.15.0):
+  - `analysis.Analysis.output_datasets` is the reverse of `Dataset.produced_by`.
+  - `tissue.Process.outputs` is the reverse of `Sample.produced_by` (resolved across all 33
+    concrete sample classes).
+  - `DissectFixedBrain.new_fixed_samples` is multivalued (a dissection yields several sections).
+- **Migration:** a payload that sets `output_datasets` or `outputs` is accepted and the value
+  ignored on write. Set `produced_by` on each Dataset / Sample instead. The analysis example
+  now records the fact once, on `DS-COUNTS.produced_by`.
+- **Before migrating a populated database,** check that every stored `outputs` /
+  `output_datasets` row has a matching `produced_by`, and backfill `produced_by` from any that
+  don't. Otherwise those facts disappear from reads. (On the generated demo data, 104 of 105
+  `outputs` rows and all 49 `output_datasets` rows have no matching `produced_by`, because the
+  generator fills each slot independently.)
+- Not yet changed: the named per-process output slots (`new_samples`, `frozen_cerebellum`,
+  `fixed_dura`, …). They carry the role of each output (fixed / frozen / media / remainder, and
+  which region), which `produced_by` alone cannot express, so they stay until that is modeled.
+
 ### Added
 
 - Read-only reverse (`inverse:`) slots, so Mosaic can answer "what points at this?" server-side

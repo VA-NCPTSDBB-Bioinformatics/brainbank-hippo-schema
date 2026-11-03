@@ -131,7 +131,10 @@ classes:
       outputs:
         range: Sample
         multivalued: true
-        description: Specimens produced as output of this process.
+        inverse: produced_by
+        description: >-
+          Specimens produced as output of this process. Read-only reverse of Sample.produced_by
+          (Mosaic ADR-0011): set produced_by on each Sample; never write this slot.
 
 enums:
   SolidSampleFormat:

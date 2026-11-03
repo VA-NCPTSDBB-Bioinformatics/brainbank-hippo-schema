@@ -73,7 +73,6 @@ analyses:
     protocol: WFD-rnaseq-3.14.0    # the definition this run executed
     engine_version: Nextflow 23.10.1
     input_datasets: [ DS-RAW ]
-    output_datasets: [ DS-COUNTS ]
     status: completed
     compute_environment: SLURM HPC, nf-core 'base' profile
     parameters:

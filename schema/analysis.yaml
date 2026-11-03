@@ -60,9 +60,10 @@ classes:
       output_datasets:
         range: Dataset
         multivalued: true
+        inverse: produced_by
         description: >-
-          Datasets produced by this analysis. Each such Dataset should also point back via
-          produced_by -> this Analysis.
+          Datasets produced by this analysis. Read-only reverse of Dataset.produced_by (Mosaic
+          ADR-0011): set produced_by on each Dataset; never write this slot.
       parameters:
         range: Parameter
         multivalued: true

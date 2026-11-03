@@ -25,9 +25,11 @@ classes:
     attributes:
       person:
         range: Person
+        inverse: assessments
         description: The person (donor) this assessment is about, if applicable.
       sample:
         range: Sample
+        inverse: assessments
         description: The tissue sample this assessment is about, if applicable.
       method:
         description: Method or protocol used to perform this assessment.
@@ -37,6 +39,11 @@ classes:
 
   Measurement:
     is_a: Assessment
+    slot_usage:
+      person:
+        inverse: measurements
+      sample:
+        inverse: measurements
     description: >-
       A generic neuropathology measure. PROVISIONAL. When scope is known, `measure_name` is intended
       to be constrained by the MeasureType enum below (populated then), with staged scales recorded
@@ -55,6 +62,11 @@ classes:
   Diagnosis:
     is_a: Assessment
     description: A disease diagnosis recorded for a donor. PROVISIONAL.
+    slot_usage:
+      person:
+        inverse: diagnoses
+      sample:
+        inverse: diagnoses
     attributes:
       disease:
         range: Disease

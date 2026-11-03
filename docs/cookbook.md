@@ -6,7 +6,7 @@ files that pass `make validate` — so they accurately reflect what the schema a
 
 ---
 
-## Before you start: two things to know
+## Before you start: three things to know
 
 ### 1. The `category` slot and polymorphic collections
 
@@ -35,6 +35,22 @@ validation when the slot is inside a polymorphic `anyOf` — this affects `perfo
 Those slots work correctly in the schema (Pydantic generates proper type annotations for
 them). They are deliberately omitted from the example files only to keep CI green.
 See DESIGN.md §8 and §10 for details.
+
+### 3. Reverse slots ("what points at this?") are Mosaic's view, not data
+
+Some slots answer the reverse of a reference: `Donor.samples` lists the samples whose
+`donor` is that donor. They are **read-only** and never stored. Mosaic derives them from the
+forward slot and lets you filter, count and display them. They are declared two ways:
+
+- **Same module:** on the "one" side with `inverse:` (e.g. `Location.containers`, reverse of
+  `Container.location`). These are ordinary LinkML slots (Mosaic ADR-0011).
+- **Across modules:** on the forward slot, e.g. `Sample.donor: {range: Donor, inverse: samples}`.
+  Declaring `Donor.samples` in `person.yaml` would make a lower module name a higher one, so
+  Mosaic synthesizes the reverse on the range class instead (Mosaic ADR-0012).
+
+Synthesized reverses exist only in Mosaic: `gen-pydantic`, `gen-doc` and other LinkML tooling
+do not show them. Never set a reverse slot in instance data; a writer sets the forward slot
+(`donor`, `person`, `sample`) and the reverse follows.
 
 ---
 

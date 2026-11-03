@@ -31,10 +31,16 @@ Versioning follows [Semantic Versioning](https://semver.org/).
     (reverse of `Dataset.produced_by`). Leaf ranges on purpose: Mosaic resolves a reverse
     slot against the named class's own table only, so a generic `Assay.datasets` would miss
     every subclass dataset.
-- Only same-module reverses are declared. A reverse that crosses modules (e.g. `Donor` →
-  samples, `Person`/`Sample` → diagnoses) would make a lower layer reference an upper one,
-  breaking the module DAG (DESIGN.md §1, §2.2); those wait on Mosaic accepting a reverse declared
-  from the forward side.
+- Cross-module reverses, declared on the **forward** slot so the module DAG stays intact
+  (DESIGN.md §1, §2.2). Mosaic synthesizes each one on the range class (Mosaic ADR-0012;
+  requires a Mosaic release carrying it). Never stored or written; LinkML tooling
+  (`gen-pydantic`, `gen-doc`) does not show them:
+  - `Donor.samples` from `tissue.Sample.donor` (`inverse: samples`)
+  - `Person.assessments` / `Sample.assessments` from `pathology.Assessment.person` / `.sample`
+  - `Person.diagnoses` / `Sample.diagnoses` from `Diagnosis` `slot_usage` on `person` / `sample`
+  - `Person.measurements` / `Sample.measurements` from `Measurement` `slot_usage` on `person` / `sample`
+  Reverses ranged on an abstract class (`Sample`, `Assessment`) resolve in storage today and
+  in GraphQL/MCP once Mosaic ADR-0014 ships.
 
 - `docs/mappings.md` — external-standard mappings table (Uberon, OBI, PROV-O, DRS, RO-Crate, Bioschemas).
 - `exact_mappings:` annotations on `core.Activity`, `dataset.Dataset/File/FileSet`, `dataset.Assay`,

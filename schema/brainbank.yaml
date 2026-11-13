@@ -227,15 +227,26 @@ classes:
         description: Concentration of the DNA extract (e.g. in ng/µL from NanoDrop).
 
   # --- brain-bank processes: banking (intake) -------------------------------
-  BankFreshBrain:
+  BrainBankingEvent:
+    abstract: true
     is_a: Process
+    description: >-
+      Abstract parent of the brain-banking processes (`BankFreshBrain`, `BankFixedBrain`). It
+      exists to own `donor`, so the read-only reverse `Donor.banking_events` is declared once,
+      on a shared ancestor: Mosaic ADR-0012 lets a reverse slot range on only one class (#21).
+    attributes:
+      donor:
+        range: Donor
+        inverse: banking_events
+        description: >-
+          The donor whose brain is being banked. Declares the read-only reverse
+          `Donor.banking_events` from this (forward) side (Mosaic ADR-0012).
+  BankFreshBrain:
+    is_a: BrainBankingEvent
     description: >-
       Bank a fresh (unfixed) brain: fix one hemisphere and freeze the rest as named regions,
       extracting DNA/RNA. Ported from bank_brain_workflow:BankFreshBrain.
     attributes:
-      donor:
-        range: Donor
-        description: The donor whose brain is being banked.
       fixed_hemisphere:
         range: Hemisphere
         required: true
@@ -295,12 +306,12 @@ classes:
         multivalued: true
         description: Any additional tissue sections collected during banking.
   BankFixedBrain:
-    is_a: Process
+    is_a: BrainBankingEvent
     description: Bank a chemically fixed (formalin-fixed) whole brain or hemisphere.
-    attributes:
+    slot_usage:
       donor:
-        range: Donor
         description: The donor whose fixed brain is being banked.
+    attributes:
       brain:
         range: Brain
         description: The fixed brain specimen being banked.

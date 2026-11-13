@@ -27,6 +27,7 @@ classes:
       donor:
         range: Donor
         required: true
+        inverse: samples
         description: The deceased donor this sample was taken from.
       anatomical_site:
         range: AnatomicalStructure

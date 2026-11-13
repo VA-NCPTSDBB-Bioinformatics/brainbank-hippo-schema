@@ -25,10 +25,16 @@ classes:
     attributes:
       person:
         range: Person
-        description: The person (donor) this assessment is about, if applicable.
+        inverse: assessments
+        description: >-
+          The person (donor) this assessment is about, if applicable. Declares the read-only
+          reverse `Person.assessments` from this (forward) side (Mosaic ADR-0012).
       sample:
         range: Sample
-        description: The tissue sample this assessment is about, if applicable.
+        inverse: assessments
+        description: >-
+          The tissue sample this assessment is about, if applicable. Declares the read-only
+          reverse `Sample.assessments` from this (forward) side (Mosaic ADR-0012).
       method:
         description: Method or protocol used to perform this assessment.
       asserted_on:
@@ -51,6 +57,17 @@ classes:
         description: Numeric value of the measurement (e.g. a Braak stage integer or continuous score).
       value_text:
         description: Text value of the measurement, for categorical or free-text scores.
+    slot_usage:
+      person:
+        inverse: measurements
+        description: >-
+          The person (donor) this measurement is about, if applicable. Declares the read-only
+          reverse `Person.measurements`, ranged on `Measurement` (Mosaic ADR-0012).
+      sample:
+        inverse: measurements
+        description: >-
+          The tissue sample this measurement is about, if applicable. Declares the read-only
+          reverse `Sample.measurements`, ranged on `Measurement` (Mosaic ADR-0012).
 
   Diagnosis:
     is_a: Assessment
@@ -60,6 +77,17 @@ classes:
         range: Disease
         required: true
         description: The MONDO disease term for this diagnosis.
+    slot_usage:
+      person:
+        inverse: diagnoses
+        description: >-
+          The person (donor) this diagnosis is for, if applicable. Declares the read-only
+          reverse `Person.diagnoses`, ranged on `Diagnosis` (Mosaic ADR-0012).
+      sample:
+        inverse: diagnoses
+        description: >-
+          The tissue sample this diagnosis is for, if applicable. Declares the read-only
+          reverse `Sample.diagnoses`, ranged on `Diagnosis` (Mosaic ADR-0012).
 
 enums:
   Disease:

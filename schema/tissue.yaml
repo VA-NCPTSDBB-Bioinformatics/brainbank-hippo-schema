@@ -27,7 +27,11 @@ classes:
       donor:
         range: Donor
         required: true
-        description: The deceased donor this sample was taken from.
+        inverse: samples
+        description: >-
+          The deceased donor this sample was taken from. Declares the read-only reverse
+          `Donor.samples` from this (forward) side, because `person` cannot name `Sample`
+          without breaking the module DAG (Mosaic ADR-0012).
       anatomical_site:
         range: AnatomicalStructure
         multivalued: true

@@ -56,6 +56,39 @@ See [Diagrams](diagrams.md) for the module DAG and entity-relation diagrams.
 
 ---
 
+## Reverse (inverse) slots
+
+Some slots answer "what points at this?" — e.g. `Container.child_containers` is the reverse of
+`Container.parent`. Reverse slots are **read-only**: Mosaic derives them from the forward slot;
+they are never stored or written, and instance documents never carry them.
+
+They are declared in one of two ways:
+
+- **Same-module reverses** are declared on the class being pointed at, with `inverse:` naming
+  the forward slot (Mosaic ADR-0011) — e.g. `Location.containers` (`inverse: location`).
+- **Cross-module reverses** are declared on the **forward** slot, with `inverse:` naming the
+  reverse to synthesize (Mosaic ADR-0012). The module DAG means a lower layer cannot name an
+  upper one — `person` cannot mention `Sample` — so the reverse is declared from the upper side:
+
+| Forward slot (declared on) | Synthesized reverse |
+|---|---|
+| `Sample.donor` (`tissue`) | `Donor.samples` |
+| `Assessment.person` / `Assessment.sample` (`pathology`) | `Person.assessments` / `Sample.assessments` |
+| `Diagnosis` `slot_usage` `person` / `sample` (`pathology`) | `Person.diagnoses` / `Sample.diagnoses` |
+| `Measurement` `slot_usage` `person` / `sample` (`pathology`) | `Person.measurements` / `Sample.measurements` |
+| `BrainBankingEvent.donor` (`brainbank`) | `Donor.banking_events` |
+
+!!! note "Synthesized reverses are Mosaic's view of the schema"
+    A reverse declared from the forward side exists only in Mosaic's schema registry
+    (`SchemaRegistry.inverse_reference_slots(...)`, GraphQL, MCP). It is **not** a slot of the
+    LinkML schema itself, so it does not appear in `gen-pydantic` models, `gen-doc` reference
+    pages, or the generated diagrams — look for it on the forward slot's `inverse:` instead.
+    Reverses ranged on or declared from abstract classes (`Sample`, `Assessment`,
+    `BrainBankingEvent`) resolve in storage but are typed and filterable in GraphQL/MCP only
+    once Mosaic ADR-0014 ships.
+
+---
+
 ## Quick-start
 
 ```bash

@@ -31,10 +31,19 @@ Versioning follows [Semantic Versioning](https://semver.org/).
     (reverse of `Dataset.produced_by`). Leaf ranges on purpose: Mosaic resolves a reverse
     slot against the named class's own table only, so a generic `Assay.datasets` would miss
     every subclass dataset.
-- Only same-module reverses are declared. A reverse that crosses modules (e.g. `Donor` →
-  samples, `Person`/`Sample` → diagnoses) would make a lower layer reference an upper one,
-  breaking the module DAG (DESIGN.md §1, §2.2); those wait on Mosaic accepting a reverse declared
-  from the forward side.
+- Cross-module reverse slots, declared on the **forward** slot so no lower module has to name an
+  upper one (Mosaic ADR-0012; #16). Like the same-module reverses they are read-only and never
+  stored. They exist only in Mosaic's view of the schema, not in `gen-pydantic`/`gen-doc` output:
+  - `Donor.samples` (from `tissue.Sample.donor`)
+  - `Person.assessments`, `Sample.assessments` (from `pathology.Assessment.person` / `.sample`)
+  - `Person.diagnoses`, `Sample.diagnoses` (from `Diagnosis` `slot_usage` on `person` / `sample`)
+  - `Person.measurements`, `Sample.measurements` (from `Measurement` `slot_usage` on `person` / `sample`)
+  - `Donor.banking_events` (from `brainbank.BrainBankingEvent.donor`)
+- `brainbank.BrainBankingEvent` — abstract `is_a: Process` parent of `BankFreshBrain` and
+  `BankFixedBrain` that owns their `donor` slot (#21, option B). ADR-0012 lets a reverse range on
+  only one class, so `Donor.banking_events` must be declared once, on a shared ancestor.
+  Instance documents are unaffected: both classes keep a `donor` slot with the same range.
+- Docs: "Reverse (inverse) slots" section on the site home page.
 
 - `docs/mappings.md` — external-standard mappings table (Uberon, OBI, PROV-O, DRS, RO-Crate, Bioschemas).
 - `exact_mappings:` annotations on `core.Activity`, `dataset.Dataset/File/FileSet`, `dataset.Assay`,

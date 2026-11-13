@@ -47,6 +47,9 @@ forward slot and lets you filter, count and display them. They are declared two 
 - **Across modules:** on the forward slot, e.g. `Sample.donor: {range: Donor, inverse: samples}`.
   Declaring `Donor.samples` in `person.yaml` would make a lower module name a higher one, so
   Mosaic synthesizes the reverse on the range class instead (Mosaic ADR-0012).
+  A reverse can range on only one class, so when several classes share a forward slot it is
+  declared once on a common ancestor: `BrainBankingEvent.donor` (`inverse: banking_events`)
+  covers both `BankFreshBrain` and `BankFixedBrain`.
 
 Synthesized reverses exist only in Mosaic: `gen-pydantic`, `gen-doc` and other LinkML tooling
 do not show them. Never set a reverse slot in instance data; a writer sets the forward slot

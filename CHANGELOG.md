@@ -39,8 +39,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
   - `Person.assessments` / `Sample.assessments` from `pathology.Assessment.person` / `.sample`
   - `Person.diagnoses` / `Sample.diagnoses` from `Diagnosis` `slot_usage` on `person` / `sample`
   - `Person.measurements` / `Sample.measurements` from `Measurement` `slot_usage` on `person` / `sample`
-  Reverses ranged on an abstract class (`Sample`, `Assessment`) resolve in storage today and
-  in GraphQL/MCP once Mosaic ADR-0014 ships.
+  - `Donor.banking_events` from `brainbank.BrainBankingEvent.donor` (`inverse: banking_events`)
+  Reverses ranged on an abstract class (`Sample`, `Assessment`, `BrainBankingEvent`) resolve in
+  storage today and in GraphQL/MCP once Mosaic ADR-0014 ships.
+- `brainbank.BrainBankingEvent` — abstract `is_a: Process` parent of `BankFreshBrain` and
+  `BankFixedBrain` that owns their `donor` slot (#21, option B). ADR-0012 lets a reverse range on
+  only one class, so `Donor.banking_events` is declared once, on this shared ancestor. Instance
+  documents are unaffected: both classes keep a `donor` slot with the same range.
 
 - `docs/mappings.md` — external-standard mappings table (Uberon, OBI, PROV-O, DRS, RO-Crate, Bioschemas).
 - `exact_mappings:` annotations on `core.Activity`, `dataset.Dataset/File/FileSet`, `dataset.Assay`,

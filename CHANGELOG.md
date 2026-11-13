@@ -16,6 +16,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `evals/discovery.yaml` — the brain-bank discovery case set (`b01`–`b12`), moved here
+  verbatim from datahelix's `deploy/recipes/demo-reel/evals/brainbank.yaml` so the cases
+  version with the schema they describe (Reel Phase A6). The header pins the schema ref the
+  cases were verified against (`43a93d6`); bump it when they are re-verified against a newer
+  ref. `CONTRIBUTING.md` gains a "Discovery cases" section on running them with Reel's
+  `python -m reel.evals.run`.
 - Read-only reverse (`inverse:`) slots, so Mosaic can answer "what points at this?" server-side
   (Mosaic ADR-0011: filterable, countable, displayable — derived from the forward slot, never
   stored or written, so existing instance documents and databases are unaffected):

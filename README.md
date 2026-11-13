@@ -17,6 +17,7 @@ small, mechanical change rather than a rewrite.
 ```
 schema/        LinkML source modules (one concern per file)
 examples/      example data instances validated in CI
+evals/         discovery case set graded by Reel against a served copy of the schema
 docs/          design + reference documents
 DESIGN.md      the design brief and decision log
 ```

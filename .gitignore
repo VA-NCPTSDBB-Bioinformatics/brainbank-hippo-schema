@@ -7,3 +7,6 @@ __pycache__/
 .venv/
 venv/
 site/
+
+# Generated reference pages (gen-doc); CI regenerates them before mkdocs build (#20)
+docs/gen/

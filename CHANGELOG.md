@@ -14,6 +14,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- `docs/gen/` (the `gen-doc` reference pages) is no longer committed. It is in `.gitignore`
+  and the docs workflow regenerates it before `mkdocs build --strict`. The committed copy
+  had 20 file pairs that differ only in case, so clones on macOS and Windows started out
+  dirty (#20). See CONTRIBUTING for how to preview the site locally.
+
 ### Added
 
 - Read-only reverse (`inverse:`) slots, so Mosaic can answer "what points at this?" server-side
